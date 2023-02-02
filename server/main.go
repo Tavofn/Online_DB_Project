@@ -58,3 +58,7 @@ func main() {
 	listenAddr := fmt.Sprintf(":%d", args.port)
 	log.Fatal(http.ListenAndServe("127.0.0.1"+listenAddr, nil))
 }
+
+/*To run website server, type localhost:8085 on browser, it will run a local version of the website.
+No one else will have access to it but on your machine
+*/
