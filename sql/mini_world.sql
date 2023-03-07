@@ -167,7 +167,6 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`playlist` (
     ON UPDATE CASCADE);
 
 
-
 DROP TABLE IF EXISTS `3380-project`.`playlist_song` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`playlist_song` (
   `playlist_id` INT NOT NULL,
