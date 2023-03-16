@@ -12,7 +12,8 @@ body {
     height: 620px;
     margin: auto;
     background-color: #5b3ad4;
-    border-radius: 3px;
+    
+    border-radius: 5px;
   }
   h1 {
     text-align: center;
@@ -42,7 +43,7 @@ body {
     border-radius: 6px;
     outline: none;
   }
-  input[type="button"] {
+  input[type="button"]{
     width: 320px;
     height: 35px;
     margin-top: 20px;
@@ -50,7 +51,13 @@ body {
     background-color: #b40b0b;
     color: white;
     font-size: 18px;
-  }
+}
+
+input[type="button"]:active{
+    background-color:black;
+    transform: translate(2px);
+}
+
   p {
     text-align: center;
     padding-top: 20px;
@@ -65,6 +72,12 @@ body {
   .para-2 a {
     color: #b40b0b;
   }
+  .temp{
+    color: darkgrey;
+   
+  }
+  
+
   
   
   
