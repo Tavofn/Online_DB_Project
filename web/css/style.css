@@ -1,7 +1,7 @@
 body{
     margin: 0;
     padding: 0;
-    background: url(slash.jpg);
+    background: url("/images/slash.jpg");
     background-size: cover;
     background-position: center;
     font-family: sans-serif;

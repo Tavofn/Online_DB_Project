@@ -25,12 +25,20 @@ func parseArgs() *CommandArgs {
 }
 
 func main() {
+
+	// db, err := sql.Open("mysql", "root:<yourMySQLdatabasepassword>@tcp(127.0.0.1:3306)/test")
+	// if err != nil {
+	// 	panic(err.Error())
+	// }
+	// defer db.Close()
+	// fmt.Println("Success!")
+
 	args := parseArgs()
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/index.html")
+		http.ServeFile(w, r, "./web/login.html")
 	})
-	http.HandleFunc("/newAccount.html", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/newAccount.html")
+	http.HandleFunc("/signup.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/signup.html")
 	})
 
 	http.HandleFunc("/forgotpassword.html", func(w http.ResponseWriter, r *http.Request) {
@@ -38,6 +46,7 @@ func main() {
 	})
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./web/css"))))
+	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./web/images"))))
 	listenAddr := fmt.Sprintf(":%d", args.port)
 
 	log.Fatal(http.ListenAndServe("127.0.0.1"+listenAddr, nil))
