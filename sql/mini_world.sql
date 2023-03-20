@@ -13,8 +13,9 @@ USE `3380-project` ;
 
 DROP TABLE IF EXISTS `3380-project`.`user` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`user` (
-  `UserID` INT NOT NULL,
+  `UserID` INT NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(45) NOT NULL,
   `password` VARCHAR(45) NOT NULL,
   `date_registered` DATETIME NOT NULL,
   `name_of_user` VARCHAR(45) NOT NULL,

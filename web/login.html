@@ -8,14 +8,17 @@
     <div class="loginbox">
         <img src="/images/avatar.png" class="avatar">
             <h1>Login Here</h1>
-            <form>
+            <form action = "/login">
                 <p>Username</p>
-                <input type="text" name="" placeholder="Enter Username">
+                <input type="text" name="username" placeholder="Enter Username">
                 <p>Password</p>
-                <input type="password" name="" placeholder="Enter Password">
+                <input type="password" name="password" placeholder="Enter Password">
                 <input type="submit" name="" value="Login">
                 <a href="forgotpassword.html">Forgot your Password?</a><br>
-                <a href="signup.html">Don't have an account?</a>
+                <a href="/signup">Don't have an account?</a>
+                {{if .}}
+                    <p style="color:red">{{.}}</p>
+                {{end}}
             </form>
         
     </div>

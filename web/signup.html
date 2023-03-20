@@ -12,19 +12,25 @@
     <div class="signup-box">
       <h1>Sign Up</h1>
       <h4>It's free and only takes a minute</h4>
-      <form>
+      <form action = "/signup" method="POST">
         <label>First Name</label>
-        <input type="text" placeholder="" />
+        <input name="fname" type="text" placeholder="" />
         <label>Last Name</label>
-        <input type="text" placeholder="" />
+        <input name="lname" type="text" placeholder="" />
         <label>Email</label>
-        <input type="email" placeholder="" />
+        <input name ="email" type="email" placeholder="" />
+        <label>Username</label>
+        <input name ="username" type="username" placeholder="" />
         <label>Password</label>
-        <input type="password" placeholder="" />
+        <input name ="password" type="password" placeholder="" />
         <label>Confirm Password</label>
-        <input type="password" placeholder="" />
-        <input type="button" value="Submit" />
-      <closeform></closeform></form>
+        <input name ="CPassword" type="password" placeholder="" />
+        <input type="submit" value="Submit" />
+        
+      </form>
+     {{if .}}
+            <p style="color:red">{{.}}</p>
+        {{end}}
       <p>
         By clicking the Sign Up button,you agree to our <br />
         <a href="#" class="temp">Terms and Condition</a> and <a href="#" class="temp">Policy Privacy</a>
@@ -33,5 +39,6 @@
     <p class="para-2">
       Already have an account? <a href="login.html">Login here</a>
     </p>
+    
   </body>
 </html>
