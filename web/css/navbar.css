@@ -1,0 +1,22 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: monospace;
+
+}
+ul{
+    float: right;
+    list-style-type: none;
+}
+
+ul li{
+    display: inline-block;
+}
+
+ul li a{
+    text-decoration: solid;
+    display: flex;
+    color: white;
+    padding: 10px 20px;
+    border: 3px solid #fff
+}

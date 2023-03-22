@@ -5,34 +5,23 @@
 
 }
 
-header{
-    background-image:url(bkn.jpeg);
-    height: 100vh;
+body{
+    background-image:url("/images/bkn.jpeg");
+    background-size: cover;
+    /* background-position: center center; */
+    background-attachment: fixed;
+    height: auto;
+    font-family: sans-serif;
+    background-repeat: no-repeat;
 }
 
-ul{
-    float: right;
-    list-style-type: none;
-}
-
-ul li{
-    display: inline-block;
-}
-
-ul li a{
-    text-decoration: solid;
-    display: flex;
-    color: white;
-    padding: 10px 20px;
-    border: 3px solid #fff
-}
 
 .side-text{
   font-size: 4rem;
   text-align: center;
   height:90vh;
   line-height: 90vh;
-  margin-left: 15%;
+  /* margin-left: 15%; */
   color: #fcedd8;
   background: transparent;
    font-family: 'Niconne', cursive;

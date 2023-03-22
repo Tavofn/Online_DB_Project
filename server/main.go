@@ -55,32 +55,33 @@ func ConnectDB() {
 
 func login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
+		fmt.Println("in get rn")
 		tpl.ExecuteTemplate(w, "login.html", nil)
 		return
 	}
 	fmt.Println("out of get")
-	// r.ParseForm()
-	// username := r.FormValue("username")
-	// password := r.FormValue("password")
-	// query, err := db.Query("SELECT username,password FROM USER")
+	r.ParseForm()
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+	query, err := db.Query("SELECT username,password FROM USER")
 
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// }
-	// defer query.Close()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer query.Close()
 
-	// for query.Next() {
-	// 	var t User
-	// 	query.Scan(&t.username, &t.password)
-	// 	if t.username == username && t.password == password {
-	// 		fmt.Print("correct")
-	// 		tpl.ExecuteTemplate(w, "upload_song.html", nil)
-	// 		return
-	// 	}
+	for query.Next() {
+		var t User
+		query.Scan(&t.username, &t.password)
+		if t.username == username && t.password == password {
+			fmt.Print("correct")
+			tpl.ExecuteTemplate(w, "home.html", nil)
+			return
+		}
 
-	// }
-	// fmt.Println("incorrect")
-	// tpl.ExecuteTemplate(w, "login.html", "This Account already exists")
+	}
+	fmt.Println("incorrect")
+	tpl.ExecuteTemplate(w, "login.html", "Incorrect Credentials")
 
 }
 
@@ -188,11 +189,20 @@ func main() {
 	// http.HandleFunc("/signup.html", func(w http.ResponseWriter, r *http.Request) {
 	// 	http.ServeFile(w, r, "./web/signup.html")
 	// })
-	http.HandleFunc("/login", login)
+	http.HandleFunc("/", login)
 	http.HandleFunc("/signup", addAccountSignUp)
 
 	http.HandleFunc("/forgotpassword.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/forgotpassword.html")
+	})
+	http.HandleFunc("/home.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/home.html")
+	})
+	http.HandleFunc("/upload_song.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/upload_song.html")
+	})
+	http.HandleFunc("/search.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/search.html")
 	})
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./web/css"))))
