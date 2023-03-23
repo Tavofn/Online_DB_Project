@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/tcolgate/mp3"
 )
 
 type CommandArgs struct {
@@ -70,7 +72,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err.Error())
 	}
 	defer query.Close()
-
 	for query.Next() {
 		var t User
 		query.Scan(&t.username, &t.password)
@@ -80,9 +81,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 			http.HandleFunc("/home.html", func(w http.ResponseWriter, r *http.Request) {
 				http.ServeFile(w, r, "./web/home.html")
 			})
-			http.HandleFunc("/upload_song.html", func(w http.ResponseWriter, r *http.Request) {
-				http.ServeFile(w, r, "./web/upload_song.html")
-			})
+			http.HandleFunc("/upload_song", uploadsong)
 			http.HandleFunc("/search.html", func(w http.ResponseWriter, r *http.Request) {
 				http.ServeFile(w, r, "./web/search.html")
 			})
@@ -92,8 +91,80 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 	}
 	fmt.Println("incorrect")
-	tpl.ExecuteTemplate(w, "login.html", "Incorrect Credentials")
+	tpl.ExecuteTemplate(w, "login.html", nil)
 	//test
+}
+func uploadsong(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		tpl.ExecuteTemplate(w, "upload_song.html", nil)
+		return
+	}
+	r.ParseForm()
+	fmt.Println("sfdsdfsdf first time on post")
+	title := r.FormValue("song_name")
+
+	file, handler, err := r.FormFile("myFile")
+	if err != nil {
+		fmt.Println("Error Retrieving the File")
+		fmt.Println(err)
+		return
+	}
+	defer file.Close()
+
+	fmt.Printf("Uploaded File: %+v\n", handler.Filename)
+	fmt.Printf("File Size: %+v\n", handler.Size)
+	fmt.Printf("MIME Header: %+v\n", handler.Header)
+
+	tempFile, err := ioutil.TempFile("songs", title+".mp3")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer tempFile.Close()
+
+	fileBytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		fmt.Println(err)
+	}
+	tempFile.Write(fileBytes)
+
+	t := 0.0
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	d := mp3.NewDecoder(tempFile)
+	var f mp3.Frame
+	skipped := 0
+
+	for {
+
+		if err := d.Decode(&f, &skipped); err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Println(err)
+			return
+		}
+
+		t = t + f.Duration().Seconds()
+	}
+
+	fmt.Println(t)
+
+	insert, err2 := db.Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `listens`) VALUES (?, ?, ?, ?, ?, '1');")
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+	res, err := insert.Exec(time.Now().UTC(), string(title), t, 0, "/songs/"+title, 0)
+	rowsAffec, _ := res.RowsAffected()
+	if err != nil || rowsAffec != 1 {
+		fmt.Println("Error inserting row:", err)
+		tpl.ExecuteTemplate(w, "upload_song.html", "Error inserting data, please check all fields.")
+		return
+	}
+	tpl.ExecuteTemplate(w, "upload_song.html", nil)
 }
 
 func addAccountSignUp(w http.ResponseWriter, r *http.Request) {

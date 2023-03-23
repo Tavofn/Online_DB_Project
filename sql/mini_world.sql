@@ -11,7 +11,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 CREATE SCHEMA IF NOT EXISTS `3380-project`;
 USE `3380-project` ;
 
-DROP TABLE IF EXISTS `3380-project`.`user` ;
+-- DROP TABLE IF EXISTS `3380-project`.`user` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`user` (
   `UserID` INT NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(45) NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`user` (
 
 
 
-DROP TABLE IF EXISTS `3380-project`.`album` ;
+-- DROP TABLE IF EXISTS `3380-project`.`album` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`album` (
   `AlbumID` INT NOT NULL,
   `release_date` VARCHAR(45) NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`album` (
 
 
 
-DROP TABLE IF EXISTS `3380-project`.`artist` ;
+-- DROP TABLE IF EXISTS `3380-project`.`artist` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`artist` (
   `ArtistID` INT NOT NULL,
   `artist_name` VARCHAR(45) NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`artist` (
 
 
 
-DROP TABLE IF EXISTS `3380-project`.`genre` ;
+-- DROP TABLE IF EXISTS `3380-project`.`genre` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`genre` (
   `GenreID` INT NOT NULL,
   `genre_name` VARCHAR(45) NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`genre` (
 
 
 
-DROP TABLE IF EXISTS `3380-project`.`album_genre_artist` ;
+-- DROP TABLE IF EXISTS `3380-project`.`album_genre_artist` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`album_genre_artist` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `AlbumID` INT NOT NULL,
@@ -89,12 +89,11 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`album_genre_artist` (
     ON DELETE CASCADE
     ON UPDATE CASCADE);
 
-
 DROP TABLE IF EXISTS `3380-project`.`song` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`song` (
-  `songID` INT NOT NULL,
+  `songID` INT NOT NULL AUTO_INCREMENT,
   `release_date` DATETIME NOT NULL,
-  `album_title` VARCHAR(45) NOT NULL,
+  `title` VARCHAR(45) NOT NULL,
   `time` INT NOT NULL,
   `average_rating` FLOAT NOT NULL,
   `mp3_file` VARCHAR(45) NOT NULL,
@@ -109,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`song` (
 
 
 
-DROP TABLE IF EXISTS `3380-project`.`artist_work` ;
+-- DROP TABLE IF EXISTS `3380-project`.`artist_work` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`artist_work` (
   `ArtistID` INT NOT NULL,
   `songID` INT NOT NULL,
@@ -135,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`artist_work` (
     ON UPDATE CASCADE);
 
 -- on line 141 and CONTRAINT, not too sure why userID was initially null, changed to not null
-DROP TABLE IF EXISTS `3380-project`.`comment` ;
+-- DROP TABLE IF EXISTS `3380-project`.`comment` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`comment` (
   `CommentID` INT NOT NULL,
   `date_written` VARCHAR(45) NOT NULL,
@@ -152,7 +151,7 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`comment` (
 
 
 
-DROP TABLE IF EXISTS `3380-project`.`playlist` ;
+-- DROP TABLE IF EXISTS `3380-project`.`playlist` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`playlist` (
   `Playlist_ID` INT NOT NULL,
   `date_created` VARCHAR(45) NOT NULL,
@@ -168,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`playlist` (
     ON UPDATE CASCADE);
 
 
-DROP TABLE IF EXISTS `3380-project`.`playlist_song` ;
+-- DROP TABLE IF EXISTS `3380-project`.`playlist_song` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`playlist_song` (
   `playlist_id` INT NOT NULL,
   `song_id` INT NOT NULL,
@@ -193,7 +192,7 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`playlist_song` (
     ON UPDATE CASCADE);
 
 
-DROP TABLE IF EXISTS `3380-project`.`producer` ;
+-- DROP TABLE IF EXISTS `3380-project`.`producer` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`producer` (
   `ProducerID` INT NOT NULL,
   `company` VARCHAR(45) NOT NULL,
@@ -202,7 +201,7 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`producer` (
 
 
 
-DROP TABLE IF EXISTS `3380-project`.`produces` ;
+-- DROP TABLE IF EXISTS `3380-project`.`produces` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`produces` (
   `producer_workID` INT NOT NULL,
   `ProducerID` INT NOT NULL,
@@ -229,7 +228,7 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`produces` (
     ON UPDATE CASCADE);
 
 
-DROP TABLE IF EXISTS `3380-project`.`rating` ;
+-- DROP TABLE IF EXISTS `3380-project`.`rating` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`rating` (
   `ratingID` INT NOT NULL,
   `score` FLOAT NOT NULL,
@@ -246,7 +245,7 @@ CREATE TABLE IF NOT EXISTS `3380-project`.`rating` (
 
 
 
-DROP TABLE IF EXISTS `3380-project`.`song_comment_rating` ;
+-- DROP TABLE IF EXISTS `3380-project`.`song_comment_rating` ;
 CREATE TABLE IF NOT EXISTS `3380-project`.`song_comment_rating` (
   `songID` INT NOT NULL,
   `CommentID` INT NOT NULL,
