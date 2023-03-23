@@ -29,6 +29,7 @@ type User struct {
 
 var tpl *template.Template
 var db *sql.DB
+var isTrue bool = false
 
 func ConnectDB() {
 
@@ -75,6 +76,16 @@ func login(w http.ResponseWriter, r *http.Request) {
 		query.Scan(&t.username, &t.password)
 		if t.username == username && t.password == password {
 			fmt.Print("correct")
+			isTrue = true
+			http.HandleFunc("/home.html", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "./web/home.html")
+			})
+			http.HandleFunc("/upload_song.html", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "./web/upload_song.html")
+			})
+			http.HandleFunc("/search.html", func(w http.ResponseWriter, r *http.Request) {
+				http.ServeFile(w, r, "./web/search.html")
+			})
 			tpl.ExecuteTemplate(w, "home.html", nil)
 			return
 		}
@@ -82,7 +93,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("incorrect")
 	tpl.ExecuteTemplate(w, "login.html", "Incorrect Credentials")
-
+	//test
 }
 
 func addAccountSignUp(w http.ResponseWriter, r *http.Request) {
@@ -194,15 +205,6 @@ func main() {
 
 	http.HandleFunc("/forgotpassword.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/forgotpassword.html")
-	})
-	http.HandleFunc("/home.html", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/home.html")
-	})
-	http.HandleFunc("/upload_song.html", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/upload_song.html")
-	})
-	http.HandleFunc("/search.html", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/search.html")
 	})
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./web/css"))))
