@@ -1,0 +1,26 @@
+body {
+  background-image: url("bki.jpeg");
+  padding-top: 100px;
+  }
+
+  .toptext{
+    align-items: center;
+    border: 3px solid green;
+    width: 90%;
+    text-align: center;
+    max-width: 1000px;
+    padding: 25px 25px 25px;
+  }
+
+
+.main{
+  align-items: center;
+  background: aqua;
+  width: 25%;
+  max-width: 1000px;
+  padding: 50px 50px 50px;
+  box-sizing: content-box;
+  border: solid #ffffff 10px;
+  margin: 0 auto;
+
+}
