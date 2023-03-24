@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+    <title>Coog Music - Home</title>
+    <link rel="stylesheet" type="text/css" href="/css/navbar.css"/>
+    <style>
+        
+        .tester{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+
+        }
+        
+		.button {
+			display: inline-block;
+			background-color: #4CAF50;
+			color: white;
+			padding: 10px 20px;
+			text-align: center;
+			text-decoration: none;
+			font-size: 16px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			margin-top: 20px;
+            font-size: 200%;
+		}
+        input[type="text"] {
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    margin-right: 10px;
+    font-size: 200%;
+  }
+
+  label {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+    </style>
+    
+</head>
+
+<body background="/images/bkn.jpeg">
+    <header>
+        <div class="main">
+            <ul>
+                <li><a  href="home.html"> Home </a> </a></li>
+                <li><a  href="search.html"> Search </a> </a></li>
+                <li><a  href="upload_song"> Upload a Song </a> </a></li>
+                <li><a  href="#"> Generate a Report </a> </a></li>
+                <li><a  href="#"> Create / View Playlists </a> </a></li>
+                <li><a  href="/signup"> Sign up </a> </a></li>
+                <li><a  href="login.html"> Login </a> </a></li>
+                <li class="dropdown">
+                    <a href="#"> My Account &#9660;</a>
+                    <ul class="dropdown-content">
+                        <li><a href="myaccount.html">Account Settings</a></li>
+                        <li><a href="#">Logout</a></li>
+                    </ul>
+                </li>
+                
+            </ul>
+        </div>
+        <div class="tester">
+            
+            <input type="text" id="playlistTitle" name="playlistTitle" placeholder="Enter playlist title...">
+            <button class="button">Create Playlist</button>
+		
+            
+        </div>
+    </header>
+
+    
+    
+</body>
+</html>
