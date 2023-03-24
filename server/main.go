@@ -277,6 +277,12 @@ func main() {
 	http.HandleFunc("/forgotpassword.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/forgotpassword.html")
 	})
+	http.HandleFunc("/myaccount.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/myaccount.html")
+	})
+	http.HandleFunc("/AO.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/myaccount.html")
+	})
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./web/css"))))
 	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./web/images"))))
