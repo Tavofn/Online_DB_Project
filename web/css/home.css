@@ -36,3 +36,37 @@ body{
               40px 40px 0px #c11a2b, 
               45px 45px 0px #c11a2b;
 }
+/*.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #017e7f;
+    min-width: 160px;
+    z-index: 1;
+    
+    
+}
+.dropdown-content li {
+    /*padding: 12px 16px;
+    list-style: none;
+    border-bottom: 1px solid #ddd;
+   
+    text-align: left;
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}*/
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: rgb(71, 200, 187);
+    min-width: 160px;
+    z-index: 1;
+}
+.dropdown-content li {
+    padding: 12px 16px;
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+

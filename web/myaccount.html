@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="myaccount.css">
+    <title>My Account</title>
+    <script src="script.js"></script>
+</head>
+<body bgcolor="black">
+    <div class="container">
+		<div class="sidebar">
+			<h2>My Account</h2>
+			<div class="menu-item" id="overview">Account Overview</div>
+			<div class="menu-item" id="edit" >Edit Profile</div>
+			<div class="menu-item" id="changepass">Change Password</div>
+			<div class="menu-item" id="lout">Logout</div>
+		</div>
+		<div class="main-content" id="main-content">
+			<!-- Your main content goes here -->
+			<div class="con">
+				<h1>Account Overview</h1>
+				<table>
+				   <tr>
+					<td>First Name:</td>
+					<td>John</td>
+				   </tr>
+				   <tr>
+					<td>Last Name:</td>
+					<td>Doe</td>
+				   </tr>
+				  <tr>
+					<td>Username:</td>
+					<td>johndoe</td>
+				  </tr>
+				  <tr>
+					<td>User ID:</td>
+					<td>12345</td>
+				  </tr>
+				  <tr>
+					<td>Email:</td>
+					<td>johndoe@example.com</td>
+				  </tr>
+				  
+				  <tr>
+					<td>Date Registered:</td>
+					<td>2022-01-01</td>
+				  </tr>
+				  <tr>
+					<td>Access Level:</td>
+					<td>Standard</td>
+				  </tr>
+				</table>
+			  </div>
+		
+		</body>
+            
+		</div>
+	</div>
+
+	<script>
+		const overviewBtn = document.getElementById("overview");
+		const editBtn = document.getElementById("edit");
+		const changep = document.getElementById("changepass")
+		const mainContent = document.getElementById("main-content");
+
+		overviewBtn.addEventListener("click", () => {
+			fetch("AO.html")
+                .then(response => response.text())
+                .then(data => mainContent.innerHTML = data);
+		});
+
+		editBtn.addEventListener("click", () => {
+			fetch("editP.html")
+				.then(response=>response.text())
+				.then(data=>mainContent.innerHTML = data)
+			/*mainContent.innerHTML = "<h1>T</h1>";*/
+		});
+		changep.addEventListener("click",()=> {
+			fetch("changepass.html")
+				.then(response=>response.text())
+				.then(data=>mainContent.innerHTML=data)
+
+
+
+		});
+
+
+		
+
+
+	</script>
+    
+</body>

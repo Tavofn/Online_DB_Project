@@ -37,7 +37,7 @@ func ConnectDB() {
 
 	pass, err := ioutil.ReadFile("pass.txt")
 
-	db, err = sql.Open("mysql", "hpalma:"+string(pass)+"@tcp(team3-music-database-2023.mysql.database.azure.com:3306)/3380-project?tls=skip-verify")
+	db, err = sql.Open("mysql", "mthom23:"+string(pass)+"@tcp(team3-music-database-2023.mysql.database.azure.com:3306)/3380-project?tls=skip-verify")
 
 	if err != nil {
 		fmt.Println("password not readable")
