@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -8,6 +9,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 	"text/template"
 	"time"
 
@@ -241,12 +244,16 @@ func parseArgs() *CommandArgs {
 }
 
 func main() {
+	fmt.Println("Enter username with your password in pass.txt")
 	pass, err := ioutil.ReadFile("pass.txt")
+	reader := bufio.NewReader(os.Stdin)
+	input, err := reader.ReadString('\n')
+	input = strings.TrimSuffix(input, "\n")
 	if err != nil {
 		fmt.Println("password not readable")
 	}
 	tpl, _ = template.ParseGlob("./web/*.html")
-	db, err := sql.Open("mysql", "hpalma:"+string(pass)+"@tcp(team3-music-database-2023.mysql.database.azure.com:3306)/3380-project?tls=skip-verify")
+	db, err := sql.Open("mysql", input+":"+string(pass)+"@tcp(team3-music-database-2023.mysql.database.azure.com:3306)/3380-project?tls=skip-verify")
 	err = db.Ping()
 	if err != nil {
 		fmt.Println("error verifying connection with db.Ping")
