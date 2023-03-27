@@ -20,6 +20,10 @@ type CommandArgs struct {
 	webDir string
 }
 
+type webHandler struct {
+	db sql.DB
+}
+
 type User struct {
 	userid      int
 	username    string
@@ -30,33 +34,10 @@ type User struct {
 }
 
 var tpl *template.Template
-var db *sql.DB
+
 var isTrue bool = false
 
-func ConnectDB() {
-
-	pass, err := ioutil.ReadFile("pass.txt")
-
-	db, err = sql.Open("mysql", "mthom23:"+string(pass)+"@tcp(team3-music-database-2023.mysql.database.azure.com:3306)/3380-project?tls=skip-verify")
-
-	if err != nil {
-		fmt.Println("password not readable")
-	}
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	err = db.Ping()
-	if err != nil {
-		fmt.Println("error verifying connection with db.Ping")
-		panic(err.Error())
-	}
-	fmt.Println("Successful Connection to Database!")
-
-}
-
-func login(w http.ResponseWriter, r *http.Request) {
+func (ws webHandler) login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		fmt.Println("in get rn")
 		tpl.ExecuteTemplate(w, "login.html", nil)
@@ -66,7 +47,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	username := r.FormValue("username")
 	password := r.FormValue("password")
-	query, err := db.Query("SELECT username,password FROM USER")
+	query, err := ws.db.Query("SELECT username,password FROM USER")
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -81,7 +62,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 			http.HandleFunc("/home.html", func(w http.ResponseWriter, r *http.Request) {
 				http.ServeFile(w, r, "./web/home.html")
 			})
-			http.HandleFunc("/upload_song", uploadsong)
+			http.HandleFunc("/upload_song", ws.uploadsong)
 			http.HandleFunc("/search.html", func(w http.ResponseWriter, r *http.Request) {
 				http.ServeFile(w, r, "./web/search.html")
 			})
@@ -94,7 +75,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "login.html", nil)
 	//test
 }
-func uploadsong(w http.ResponseWriter, r *http.Request) {
+func (ws webHandler) uploadsong(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		tpl.ExecuteTemplate(w, "upload_song.html", nil)
 		return
@@ -153,7 +134,7 @@ func uploadsong(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(t)
 
-	insert, err2 := db.Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `listens`) VALUES (?, ?, ?, ?, ?, '1');")
+	insert, err2 := ws.db.Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `listens`) VALUES (?, ?, ?, ?, ?, '1');")
 	if err2 != nil {
 		fmt.Println(err2)
 	}
@@ -167,7 +148,7 @@ func uploadsong(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "upload_song.html", nil)
 }
 
-func addAccountSignUp(w http.ResponseWriter, r *http.Request) {
+func (ws webHandler) addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****insertHandler running*****")
 	if r.Method == "GET" {
 		fmt.Println("here")
@@ -188,7 +169,7 @@ func addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query, err := db.Query("SELECT email FROM USER")
+	query, err := ws.db.Query("SELECT email FROM USER")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -203,7 +184,7 @@ func addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	queryUName, err := db.Query("SELECT username FROM USER")
+	queryUName, err := ws.db.Query("SELECT username FROM USER")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -218,7 +199,7 @@ func addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	insert, err2 := db.Prepare("INSERT INTO `user` (`username`, `password`, `email`, `date_registered`, `name_of_user`, `access_level`) VALUES (?, ?, ?, ?, ?, '1');")
+	insert, err2 := ws.db.Prepare("INSERT INTO `user` (`username`, `password`, `email`, `date_registered`, `name_of_user`, `access_level`) VALUES (?, ?, ?, ?, ?, '1');")
 	//(`username`, `password`, `date_registered`, `name_of_user`, `access_level`)
 	if err2 != nil {
 		fmt.Println("error on prep")
@@ -262,8 +243,15 @@ func parseArgs() *CommandArgs {
 func main() {
 
 	tpl, _ = template.ParseGlob("./web/*.html")
-	ConnectDB()
+	db, err := sql.Open("mysql", "hpalma:5802**@tcp(team3-music-database-2023.mysql.database.azure.com:3306)/3380-project?tls=skip-verify")
+	err = db.Ping()
+	if err != nil {
+		fmt.Println("error verifying connection with db.Ping")
+		panic(err.Error())
+	}
+	fmt.Println("Successful Connection to Database!")
 	args := parseArgs()
+
 	defer db.Close()
 	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 	// 	http.ServeFile(w, r, "./web/login.html")
@@ -271,8 +259,9 @@ func main() {
 	// http.HandleFunc("/signup.html", func(w http.ResponseWriter, r *http.Request) {
 	// 	http.ServeFile(w, r, "./web/signup.html")
 	// })
-	http.HandleFunc("/", login)
-	http.HandleFunc("/signup", addAccountSignUp)
+	handlers := webHandler{db: *db}
+	http.HandleFunc("/", handlers.login)
+	http.HandleFunc("/signup", handlers.addAccountSignUp)
 
 	http.HandleFunc("/forgotpassword.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/forgotpassword.html")
