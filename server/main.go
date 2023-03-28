@@ -308,8 +308,8 @@ func main() {
 		http.ServeFile(w, r, "./web/createplay.html")
 	})
 
-	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./web/css"))))
-	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./web/images"))))
+	mux.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./web/css"))))
+	mux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./web/images"))))
 	listenAddr := fmt.Sprintf(":%d", args.port)
 
 	log.Fatal(http.ListenAndServe("127.0.0.1"+listenAddr, mux))
