@@ -38,9 +38,9 @@ var tpl *template.Template
 var isTrue bool = false
 
 func myDB() *sql.DB {
-	pass, err := ioutil.ReadFile("pass.txt")
-	user, err := ioutil.ReadFile("username.txt")
-	db, err := sql.Open("mysql", string(user)+":"+string(pass)+"@tcp(team3-music-database-2023.mysql.database.azure.com:3306)/3380-project?tls=skip-verify")
+	//pass, err := ioutil.ReadFile("pass.txt")
+	//user, err := ioutil.ReadFile("username.txt")
+	db, err := sql.Open("mysql", "hpalma:5802**@tcp(team3-music-database-2023.mysql.database.azure.com:3306)/3380-project?tls=skip-verify")
 	if err != nil {
 		panic(err)
 	}
