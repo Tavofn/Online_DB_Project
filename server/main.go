@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -9,8 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
-	"strings"
 	"text/template"
 	"time"
 
@@ -40,22 +37,50 @@ var tpl *template.Template
 
 var isTrue bool = false
 
-func (ws webHandler) login(w http.ResponseWriter, r *http.Request) {
+func myDB() *sql.DB {
+	pass, err := ioutil.ReadFile("pass.txt")
+	user, err := ioutil.ReadFile("username.txt")
+	db, err := sql.Open("mysql", string(user)+":"+string(pass)+"@tcp(team3-music-database-2023.mysql.database.azure.com:3306)/3380-project?tls=skip-verify")
+	if err != nil {
+		panic(err)
+	}
+	return db
+}
+func login(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("im here")
 	if r.Method == "GET" {
 		fmt.Println("in get rn")
-		tpl.ExecuteTemplate(w, "login.html", nil)
+		err := tpl.ExecuteTemplate(w, "login.html", "")
+		if err != nil {
+			fmt.Println("on GET MY ERROR")
+			fmt.Println(err)
+		}
 		return
 	}
-	fmt.Println("out of get")
+
+	// fmt.Println("out of get")
 	r.ParseForm()
 	username := r.FormValue("username")
 	password := r.FormValue("password")
-	query, err := ws.db.Query("SELECT username,password FROM USER")
 
+	query, err := myDB().Query("SELECT username,password FROM USER")
+	// fmt.Println("out of get on query")
 	if err != nil {
+		fmt.Println("query fail")
 		fmt.Println(err.Error())
 	}
 	defer query.Close()
+	fmt.Println("out of get after defer close")
+
+	if len(username) == 0 || len(password) == 0 {
+		fmt.Println("empty")
+		err2 := tpl.ExecuteTemplate(w, "login.html", "please Fill All Spaces")
+		if err2 != nil {
+			fmt.Println("on EMPTY ERROR")
+			fmt.Println(err)
+		}
+		return
+	}
 	for query.Next() {
 		var t User
 		query.Scan(&t.username, &t.password)
@@ -65,20 +90,29 @@ func (ws webHandler) login(w http.ResponseWriter, r *http.Request) {
 			http.HandleFunc("/home.html", func(w http.ResponseWriter, r *http.Request) {
 				http.ServeFile(w, r, "./web/home.html")
 			})
-			http.HandleFunc("/upload_song", ws.uploadsong)
+			http.HandleFunc("/upload_song", uploadsong)
 			http.HandleFunc("/search.html", func(w http.ResponseWriter, r *http.Request) {
 				http.ServeFile(w, r, "./web/search.html")
 			})
-			tpl.ExecuteTemplate(w, "home.html", nil)
+			err := tpl.ExecuteTemplate(w, "home.html", "")
+			if err != nil {
+				fmt.Println("ON HOME ERROR")
+				fmt.Println(err)
+			}
 			return
 		}
 
 	}
 	fmt.Println("incorrect")
-	tpl.ExecuteTemplate(w, "login.html", nil)
+	err2 := tpl.ExecuteTemplate(w, "login.html", "Login failed, please try again")
+	if err2 != nil {
+		fmt.Println("on login failed")
+		fmt.Println(err)
+	}
+	return
 	//test
 }
-func (ws webHandler) uploadsong(w http.ResponseWriter, r *http.Request) {
+func uploadsong(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		tpl.ExecuteTemplate(w, "upload_song.html", nil)
 		return
@@ -137,7 +171,7 @@ func (ws webHandler) uploadsong(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(t)
 
-	insert, err2 := ws.db.Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `listens`) VALUES (?, ?, ?, ?, ?, '1');")
+	insert, err2 := myDB().Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `listens`) VALUES (?, ?, ?, ?, ?, '1');")
 	if err2 != nil {
 		fmt.Println(err2)
 	}
@@ -151,7 +185,7 @@ func (ws webHandler) uploadsong(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "upload_song.html", nil)
 }
 
-func (ws webHandler) addAccountSignUp(w http.ResponseWriter, r *http.Request) {
+func addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****insertHandler running*****")
 	if r.Method == "GET" {
 		fmt.Println("here")
@@ -172,7 +206,7 @@ func (ws webHandler) addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query, err := ws.db.Query("SELECT email FROM USER")
+	query, err := myDB().Query("SELECT email FROM USER")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -187,7 +221,7 @@ func (ws webHandler) addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	queryUName, err := ws.db.Query("SELECT username FROM USER")
+	queryUName, err := myDB().Query("SELECT username FROM USER")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -202,7 +236,7 @@ func (ws webHandler) addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	insert, err2 := ws.db.Prepare("INSERT INTO `user` (`username`, `password`, `email`, `date_registered`, `name_of_user`, `access_level`) VALUES (?, ?, ?, ?, ?, '1');")
+	insert, err2 := myDB().Prepare("INSERT INTO `user` (`username`, `password`, `email`, `date_registered`, `name_of_user`, `access_level`) VALUES (?, ?, ?, ?, ?, '1');")
 	//(`username`, `password`, `date_registered`, `name_of_user`, `access_level`)
 	if err2 != nil {
 		fmt.Println("error on prep")
@@ -244,34 +278,21 @@ func parseArgs() *CommandArgs {
 }
 
 func main() {
-	fmt.Println("Enter username with your password in pass.txt")
-	pass, err := ioutil.ReadFile("pass.txt")
-	reader := bufio.NewReader(os.Stdin)
-	input, err := reader.ReadString('\n')
-	input = strings.TrimSuffix(input, "\n")
-	if err != nil {
-		fmt.Println("password not readable")
-	}
 	tpl, _ = template.ParseGlob("./web/*.html")
-	db, err := sql.Open("mysql", input+":"+string(pass)+"@tcp(team3-music-database-2023.mysql.database.azure.com:3306)/3380-project?tls=skip-verify")
-	err = db.Ping()
-	if err != nil {
-		fmt.Println("error verifying connection with db.Ping")
-		panic(err.Error())
-	}
+
 	fmt.Println("Successful Connection to Database!")
 	args := parseArgs()
 
-	defer db.Close()
+	// defer db.Close()
 	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 	// 	http.ServeFile(w, r, "./web/login.html")
 	// })
 	// http.HandleFunc("/signup.html", func(w http.ResponseWriter, r *http.Request) {
 	// 	http.ServeFile(w, r, "./web/signup.html")
 	// })
-	handlers := webHandler{db: *db}
-	http.HandleFunc("/", handlers.login)
-	http.HandleFunc("/signup", handlers.addAccountSignUp)
+	// mux := http.NewServeMux()
+	http.HandleFunc("/", login)
+	http.HandleFunc("/signup", addAccountSignUp)
 
 	http.HandleFunc("/forgotpassword.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/forgotpassword.html")
