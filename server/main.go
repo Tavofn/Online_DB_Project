@@ -21,7 +21,7 @@ type CommandArgs struct {
 }
 
 type webHandler struct {
-	db sql.DB
+	mu *http.ServeMux
 }
 
 type User struct {
@@ -46,7 +46,7 @@ func myDB() *sql.DB {
 	}
 	return db
 }
-func login(w http.ResponseWriter, r *http.Request) {
+func (we webHandler) login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("im here")
 	if r.Method == "GET" {
 		fmt.Println("in get rn")
@@ -86,14 +86,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		query.Scan(&t.username, &t.password)
 		if t.username == username && t.password == password {
 			fmt.Print("correct")
-			isTrue = true
-			http.HandleFunc("/home.html", func(w http.ResponseWriter, r *http.Request) {
-				http.ServeFile(w, r, "./web/home.html")
-			})
-			http.HandleFunc("/upload_song", uploadsong)
-			http.HandleFunc("/search.html", func(w http.ResponseWriter, r *http.Request) {
-				http.ServeFile(w, r, "./web/search.html")
-			})
+
 			err := tpl.ExecuteTemplate(w, "home.html", "")
 			if err != nil {
 				fmt.Println("ON HOME ERROR")
@@ -290,20 +283,28 @@ func main() {
 	// http.HandleFunc("/signup.html", func(w http.ResponseWriter, r *http.Request) {
 	// 	http.ServeFile(w, r, "./web/signup.html")
 	// })
-	// mux := http.NewServeMux()
-	http.HandleFunc("/", login)
-	http.HandleFunc("/signup", addAccountSignUp)
+	mux := http.NewServeMux()
+	test := webHandler{mu: mux}
+	mux.HandleFunc("/", test.login)
+	mux.HandleFunc("/signup", addAccountSignUp)
 
-	http.HandleFunc("/forgotpassword.html", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/home.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/home.html")
+	})
+	mux.HandleFunc("/upload_song", uploadsong)
+	mux.HandleFunc("/search.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/search.html")
+	})
+	mux.HandleFunc("/forgotpassword.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/forgotpassword.html")
 	})
-	http.HandleFunc("/myaccount.html", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/myaccount.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/myaccount.html")
 	})
-	http.HandleFunc("/AO.html", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/AO.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/myaccount.html")
 	})
-	http.HandleFunc("/createplay.html", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/createplay.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/createplay.html")
 	})
 
@@ -311,7 +312,7 @@ func main() {
 	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./web/images"))))
 	listenAddr := fmt.Sprintf(":%d", args.port)
 
-	log.Fatal(http.ListenAndServe("127.0.0.1"+listenAddr, nil))
+	log.Fatal(http.ListenAndServe("127.0.0.1"+listenAddr, mux))
 
 }
 
