@@ -1,0 +1,80 @@
+body {
+	font-family: Arial, sans-serif;
+    background-image:url("redb.jpeg");
+    background-size: cover;
+    /* background-position: center center; */
+    background-attachment: fixed;
+    height: auto;
+    background-repeat: no-repeat;
+}
+
+.container {
+	max-width: 800px;
+	margin: 0 auto;
+    border-radius: 25px;
+	padding: 25px 20px;
+	background-color: lightgray;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+	text-align: center;
+	color: #333;
+}
+
+form {
+	margin-top: 20px;
+}
+
+label {
+	display: block;
+	font-size: 18px;
+	color: #333;
+	margin-bottom: 5px;
+}
+
+input[type="text"],
+textarea {
+	width: 100%;
+	padding: 5px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	resize: none;
+}
+
+input[type="date"],
+textarea {
+	width: 100%;
+	padding: 5px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	resize: none;
+}
+
+input[type="option"],
+textarea {
+	width: 100%;
+	padding: 5px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	resize: none;
+}
+
+select{
+    width: 100%;
+	padding: 5px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	resize: none;
+}
+
+button[type="submit"] {
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-top: 20px;
+}
