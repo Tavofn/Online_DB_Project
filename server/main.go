@@ -4,15 +4,12 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"text/template"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/tcolgate/mp3"
 )
 
 type CommandArgs struct {
@@ -105,77 +102,83 @@ func (we webHandler) login(w http.ResponseWriter, r *http.Request) {
 	return
 	//test
 }
+
 func uploadsong(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		tpl.ExecuteTemplate(w, "upload_song.html", nil)
 		return
 	}
+
 	r.ParseForm()
 	fmt.Println("sfdsdfsdf first time on post")
 	title := r.FormValue("song_name")
 
-	file, handler, err := r.FormFile("myFile")
-	if err != nil {
-		fmt.Println("Error Retrieving the File")
-		fmt.Println(err)
-		return
-	}
-	defer file.Close()
+	// file, handler, err := r.FormFile("myFile")
+	// if err != nil {
+	// 	fmt.Println("Error Retrieving the File")
+	// 	fmt.Println(err)
+	// 	return
+	// }
+	// defer file.Close()
 
-	fmt.Printf("Uploaded File: %+v\n", handler.Filename)
-	fmt.Printf("File Size: %+v\n", handler.Size)
-	fmt.Printf("MIME Header: %+v\n", handler.Header)
+	// tempFile, err := os.Create("")
 
-	tempFile, err := ioutil.TempFile("songs", title+".mp3")
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer tempFile.Close()
+	// if title == "" {
+	// 	tempFile, err = os.Create("songs/" + handler.Filename)
+	// } else {
+	// 	tempFile, err = os.Create("songs/" + title + ".mp3")
 
-	fileBytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		fmt.Println(err)
-	}
-	tempFile.Write(fileBytes)
+	// }
+	fmt.Println(title + " this is my tite")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// defer tempFile.Close()
 
-	t := 0.0
+	// _, err = io.Copy(tempFile, file)
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	return
+	// }
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// t := 0.0
 
-	d := mp3.NewDecoder(tempFile)
-	var f mp3.Frame
-	skipped := 0
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
 
-	for {
+	// d := mp3.NewDecoder(tempFile)
+	// var f mp3.Frame
+	// skipped := 0
 
-		if err := d.Decode(&f, &skipped); err != nil {
-			if err == io.EOF {
-				break
-			}
-			fmt.Println(err)
-			return
-		}
+	// for {
 
-		t = t + f.Duration().Seconds()
-	}
+	// 	if err := d.Decode(&f, &skipped); err != nil {
+	// 		if err == io.EOF {
+	// 			break
+	// 		}
+	// 		fmt.Println(err)
+	// 		return
+	// 	}
 
-	fmt.Println(t)
+	// 	t = t + f.Duration().Seconds()
+	// }
 
-	insert, err2 := myDB().Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `listens`) VALUES (?, ?, ?, ?, ?, '1');")
-	if err2 != nil {
-		fmt.Println(err2)
-	}
-	res, err := insert.Exec(time.Now().UTC(), string(title), t, 0, "/songs/"+title, 0)
-	rowsAffec, _ := res.RowsAffected()
-	if err != nil || rowsAffec != 1 {
-		fmt.Println("Error inserting row:", err)
-		tpl.ExecuteTemplate(w, "upload_song.html", "Error inserting data, please check all fields.")
-		return
-	}
-	tpl.ExecuteTemplate(w, "upload_song.html", nil)
+	// fmt.Println(t)
+
+	// insert, err2 := myDB().Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `listens`) VALUES (?, ?, ?, ?, ?, '1');")
+	// if err2 != nil {
+	// 	fmt.Println(err2)
+	// }
+	// res, err := insert.Exec(time.Now().UTC(), string(title), t, 0, "/songs/"+title, 0)
+	// rowsAffec, _ := res.RowsAffected()
+	// if err != nil || rowsAffec != 1 {
+	// 	fmt.Println("Error inserting row:", err)
+	// 	tpl.ExecuteTemplate(w, "upload_song.html", "Error inserting data, please check all fields.")
+	// 	return
+	// }
+	tpl.ExecuteTemplate(w, "upload_song.html", "")
 }
 
 func addAccountSignUp(w http.ResponseWriter, r *http.Request) {
@@ -310,6 +313,7 @@ func main() {
 
 	mux.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./web/css"))))
 	mux.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./web/images"))))
+	mux.Handle("/savedSongs/", http.StripPrefix("/savedSongs/", http.FileServer(http.Dir("./songs"))))
 	listenAddr := fmt.Sprintf(":%d", args.port)
 
 	log.Fatal(http.ListenAndServe("127.0.0.1"+listenAddr, mux))
