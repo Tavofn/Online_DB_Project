@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="reports.css"/>
+    <link rel="stylesheet" type="text/css" href="navbar.css"/>
+	<title>Report Generation Page</title>
+</head>
+<body>
+
+    <div class="main">
+        <ul>
+            <li><a  href="home.html"> Home </a> </a></li>
+            <li><a  href="search.html"> Search </a> </a></li>
+            <li><a  href="upload_song"> Upload a Song </a> </a></li>
+            <li><a  href="#"> Generate a Report </a> </a></li>
+            <li><a  href="#"> Create / View Playlists </a> </a></li>
+            <li><a  href="#"> My Account </a> </a></li>
+        </ul>
+    </div>
+    <br>
+    <br>
+    <br>
+	<div class="container">
+		<h1>Generate a Report</h1>
+		<form>
+            <label for="song_name">Song name:</label>
+            <input type="text" id="song_name" name="song_name" minlength="1">
+            <label for="album_name">Album:</label>
+            <input type="text" id="album_name" name="album_name" minlength="1">
+            <label for="artist_name">Artist Name:</label>
+            <input type="text" id="artist_name" name="artist_name" minlength="1">
+            <label for="uploaded_by">Uploaded By:</label>
+            <input type="text" id="uploaded_by" name="uploaded_by" minlength="1">
+            <label for="genre">Choose a genre:</label>
+            <select name="genre" id="genre">
+            <option disabled selected value> -- select an option -- </option>
+            <option value="Pop">Pop</option>
+            <option value="Rock">Rock</option>
+            <option value="Hip-hop">Hip-Hop</option>
+            <option value="Country">Country</option>
+            <option value="Classical">Classical</option>
+            <option value="Jazz">Jazz</option>
+            </select>
+            <br>
+            <label for="choseDates">Uploaded from:</label>
+            <input type="date" id="date">
+            <label for="choseDates">Uploaded to:</label>
+            <input type="date" id="date">
+            <br>
+            <label for="sort_by">Sort by:</label>
+            <select name="sort_by" id="sort_by">
+            <option disabled selected value> -- select an option -- </option>
+            <option value="Most plays">Most plays</option>
+            <option value="Most comments">Most comments</option>
+            <option value="Upload date">Upload date</option>
+            <option value="Genre">Genre</option>
+            </select>
+
+            <button type="submit">Generate Report</button>
+
+
+			
+		</form>
+	</div>
+</body>
+</html>
