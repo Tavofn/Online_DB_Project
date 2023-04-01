@@ -4,14 +4,14 @@ body {
   /*padding-top: 100px;*/
   }
 
-  .toptext{
+  /*.toptext{
     align-items: center;
     border: 3px solid green;
     width: 90%;
     text-align: center;
     max-width: 1000px;
     padding: 25px 25px 25px;
-  }
+  }*/
 
 
 .main{
@@ -19,7 +19,7 @@ body {
   background: aqua;
   width: 25%;
   max-width: 1000px;
-  padding: 50px 50px 50px;
+  padding: 10px 50px 60px ;
   box-sizing: content-box;
   border: solid #ffffff 10px;
   margin: 0 auto;
@@ -27,6 +27,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  font-size: 15px;
 
 }
 
