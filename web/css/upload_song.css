@@ -1,6 +1,6 @@
 body {
   background-image: url("/images/search.jpg");
-  padding-top: 100px;
+  /*padding-top: 100px;*/
   }
 
   .toptext{
@@ -22,5 +22,32 @@ body {
   box-sizing: content-box;
   border: solid #ffffff 10px;
   margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 
+}
+
+.up {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  border-radius: 10px;
+}
+.up:hover {
+  background-color: #3e8e41;
+  cursor: pointer;
+}
+.submit-wrapper {
+  text-align: center;
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
 }
