@@ -1,6 +1,6 @@
 body {
   background-image: url("/images/search.jpg");
-  padding-top: 100px;
+  /*padding-top: 100px;*/
   }
 
   .toptext{
@@ -22,5 +22,12 @@ body {
   box-sizing: content-box;
   border: solid #ffffff 10px;
   margin: 0 auto;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+
 
 }
