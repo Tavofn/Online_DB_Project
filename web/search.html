@@ -6,6 +6,12 @@
    <link rel="stylesheet" href="/css/search.css">
     <link rel="stylesheet" type="text/css" href="/css/navbar.css"/>
     <link rel="stylesheet" type="text/css" href="/css/drop.css"/>
+    <script>
+        function updateSelectedOption(option) {
+  document.getElementById("selectedOption").innerHTML = option;
+}
+
+    </script>
     
 </head>
 <body>
@@ -38,14 +44,17 @@
             <div class="dropdow">
                 <button class="dropbt">Search By</button>
                 <div class="dropdow-content">
-                  <a href="#">Song Name</a>
-                  <a href="#">Genre</a>
-                  <a href="#">Playlist</a>
-            </div>
+                  <a href="#" onclick="updateSelectedOption('Song Name')">Song Name</a>
+                  <a href="#" onclick="updateSelectedOption('Genre')">Genre</a>
+                  <a href="#"onclick="updateSelectedOption('Playlist')">Playlist</a>
+            
+                </div>
+            
         </div>
+         <span id="selectedOption"></span>
 
         </form>
-        
+      
     </div>
 
 </body>

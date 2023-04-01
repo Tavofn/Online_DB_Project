@@ -140,4 +140,12 @@
     background-color: white;
     width: 149px;
   }
+  #selectedOption {
+    background-color:purple ;
+    padding: 20px;
+    border: 1px solid black;
+    color: white;
+    
+    
+  }
   
