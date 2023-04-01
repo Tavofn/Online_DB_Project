@@ -5,7 +5,6 @@
     <link rel="stylesheet" type="text/css" href="/css/navbar.css"/>
 </head>
 
-<title>Upload a Song!</title>
 <body>
 <header>
   <div>
@@ -46,7 +45,7 @@
 <br>
 <br>
 <label for="featured_artists ">Featured Artists:</label>
-<input type="text" id="featured_artists " name="featured_artists " minlength="1">
+<input type="text" id="featured_artists " name="featured_artists " minlength="1"> 
 
 <br>
 <br>
@@ -61,6 +60,8 @@
 </select>
 <br>
 <br>
+<br>
+<br>
 <p>Click on the "Choose File" button to upload a file:</p>
 <br>
 <form method="POST" enctype="multipart/form-data" >
@@ -72,9 +73,10 @@
         <p style="color:red">{{.}}</p>
   {{end}}
 
-</form>
+
 
 </div>
+</form>
 
 </body>
 
