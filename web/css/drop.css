@@ -6,13 +6,13 @@
     border: none;
   }
   
-  /*.dropdown {
+  .dropdown {
     position: relative;
     margin-top: 255px;
     margin-left: 350px;
     display: inline-block;
-  }*/
-  
+  }
+
   
   .dropdown-content {
     display: none;
