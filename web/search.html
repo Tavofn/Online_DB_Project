@@ -45,7 +45,7 @@
           </div>-->
     </header>
     <div class="container">
-        <form method="POST">
+        <form>
             <input type="text" placeholder="What do you want to listen to?">
             <button type="submit">Search</button>
             <div class="dropdow">
@@ -56,40 +56,30 @@
                   <a href="#"onclick="updateSelectedOption('Playlist')">Playlist</a>
             
                 </div>
-            <div>
-        
-            </div>
             
         </div>
         
          <span id="selectedOption">?</span>
 
         </form>
-        {{range .songList}}
-          <div class="error">
-            <span style="color:red">{{.}}</span>
-          </div>
-        {{end}}-
-      
+        <audio id="myAudio">
+            <source src="savedSongs/a-a.mp3" type="audio/mp3">
+          </audio>
+        <button onclick="playPause()">Play/Pause</button>
     </div>
-    <!-- {{if .}} -->
-    <audio id="myAudio">
-        <source src="saved_songs/yu-yu.mp3" type="audio/mp3">
-      </audio>
-        <!-- {{end}}- -->
-      <button onclick="playPause()">Play/Pause</button>
-      
-      <script>
-        var audio = document.getElementById("myAudio");
-      
-        function playPause() {
-          if (audio.paused) {
-            audio.play();
-          } else {
-            audio.pause();
-          }
-        }
-      </script>
-      
+<script>
+    var audio = document.getElementById("myAudio");
+  
+    function playPause() {
+      if (audio.paused) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    }
+  </script>
 </body>
+
 </html>
+    
+
