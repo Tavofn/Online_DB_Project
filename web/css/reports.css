@@ -1,6 +1,6 @@
 body {
 	font-family: Arial, sans-serif;
-    background-image:url("redb.jpeg");
+    background-image:url("/images/redb.jpeg");
     background-size: cover;
     /* background-position: center center; */
     background-attachment: fixed;

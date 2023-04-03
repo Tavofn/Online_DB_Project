@@ -343,6 +343,9 @@ func main() {
 	mux.HandleFunc("/editP.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/editP.html")
 	})
+	mux.HandleFunc("/reports.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/reports.html")
+	})
 	mux.HandleFunc("/changepass.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/changepass.html")
 	})
