@@ -12,6 +12,11 @@
     <div class="signup-box">
       <h1>Sign Up</h1>
       <h4>It's free and only takes a minute</h4>
+      {{if .}}
+          <div class="error"">
+            <span style="color:red">{{.}}</span>
+          </div>
+        {{end}}-
       <form action = "/signup" method="POST">
         <label>First Name</label>
         <input name="fname" type="text" placeholder="" />
@@ -28,17 +33,25 @@
         <input type="submit" value="Submit" />
         
       </form>
-     {{if .}}
+     <!--{{if .}}
+
             <p style="color:red">{{.}}</p>
-        {{end}}
-      <p>
-        By clicking the Sign Up button,you agree to our <br />
-        <a href="#" class="temp">Terms and Condition</a> and <a href="#" class="temp">Policy Privacy</a>
-      </p>
+        {{end}}-->
+      <div class="TC">
+        <p>
+          By clicking the Sign Up button,you agree to our <br />
+          <a href="#" class="temp">Terms and Condition</a> and <a href="#" class="temp">Policy Privacy</a>
+        </p>
+      </div>
     </div>
-    <p class="para-2">
+    <div class="para-2">
       Already have an account? <a href="login.html">Login here</a>
-    </p>
+    </div>
+    <div class="extra-space"></div>
+    <!--{{if .}}
+
+            <p style="color:red">{{.}}</p>
+        {{end}}-->
     
   </body>
 </html>
