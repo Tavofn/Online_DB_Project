@@ -12,7 +12,6 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/tcolgate/mp3"
 )
 
 type CommandArgs struct {
@@ -31,6 +30,9 @@ type User struct {
 	email       string
 	date_regist string
 	name_user   string
+}
+type dbstruct struct {
+	mydb *sql.DB
 }
 
 var tpl *template.Template
@@ -106,7 +108,7 @@ func (we webHandler) login(w http.ResponseWriter, r *http.Request) {
 	//test
 }
 
-func uploadsong(w http.ResponseWriter, r *http.Request) {
+func (mydb dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		tpl.ExecuteTemplate(w, "upload_song.html", nil)
 		return
@@ -144,47 +146,53 @@ func uploadsong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t := 0.0
+	// t := 0.0
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
 
-	d := mp3.NewDecoder(tempFile)
-	var f mp3.Frame
-	skipped := 0
+	// d := mp3.NewDecoder(tempFile)
+	// var f mp3.Frame
+	// skipped := 0
 
-	for {
+	// for {
 
-		if err := d.Decode(&f, &skipped); err != nil {
-			if err == io.EOF {
-				break
-			}
-			fmt.Println(err)
-			return
-		}
+	// 	if err := d.Decode(&f, &skipped); err != nil {
+	// 		if err == io.EOF {
+	// 			break
+	// 		}
+	// 		fmt.Println(err)
+	// 		return
+	// 	}
 
-		t = t + f.Duration().Seconds()
-	}
+	// 	t = t + f.Duration().Seconds()
+	// }
 
-	fmt.Println(t)
+	// fmt.Println(t)
+	// userid, err3 := mydb.mydb.Prepare("SELECT UserID FROM user WHERE username = AND password = ")
 
-	insert, err2 := myDB().Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `listens`) VALUES (?, ?, ?, ?, ?, '1');")
+	insert, err2 := mydb.mydb.Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `UserID`, `listens`) VALUES (?, ?, ?, ?, ?, ?, ?);")
 	if err2 != nil {
 		fmt.Println(err2)
+	} else {
+		fmt.Println("no error")
 	}
-	res, err := insert.Exec(time.Now().UTC(), string(title), t, 0, "/songs/"+title, 0)
-	rowsAffec, _ := res.RowsAffected()
-	if err != nil || rowsAffec != 1 {
+	res, err := insert.Exec(time.Now(), string(artist_name+"-"+title), 0, 0, "/songs/"+string(artist_name+"-"+title), 1, 1)
+
+	// rowsAffec, _ := res.RowsAffected()
+	fmt.Println(res)
+
+	if err != nil {
 		fmt.Println("Error inserting row:", err)
-		tpl.ExecuteTemplate(w, "upload_song.html", "Error inserting data, please check all fields.")
+		// tpl.ExecuteTemplate(w, "upload_song.html", "Error inserting data, please check all fields.")
 		return
 	}
 	tpl.ExecuteTemplate(w, "upload_song.html", "Song successfuly uploaded")
 }
 
-func addAccountSignUp(w http.ResponseWriter, r *http.Request) {
+func (mydb dbstruct) addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****insertHandler running*****")
 	if r.Method == "GET" {
 		fmt.Println("here")
@@ -291,13 +299,14 @@ func main() {
 	// })
 	mux := http.NewServeMux()
 	test := webHandler{mu: mux}
+	mydb := dbstruct{mydb: myDB()}
 	mux.HandleFunc("/login.html", test.login)
-	mux.HandleFunc("/signup", addAccountSignUp)
+	mux.HandleFunc("/signup", mydb.addAccountSignUp)
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/home.html")
 	})
-	mux.HandleFunc("/upload_song", uploadsong)
+	mux.HandleFunc("/upload_song", mydb.uploadsong)
 	mux.HandleFunc("/search.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/search.html")
 	})
