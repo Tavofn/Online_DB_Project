@@ -138,13 +138,14 @@
   .dropdow:hover .dropdow-content {
     display: block;
     background-color: white;
-    width: 149px;
+    width: 165px;
   }
   #selectedOption {
     background-color:purple ;
     padding: 20px;
-    border: 1px solid black;
+    border: 1px solid white;
     color: white;
+    font-size: 13px;
     
     
   }

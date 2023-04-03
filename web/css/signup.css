@@ -5,15 +5,17 @@ body {
     background-size: cover;
     background-position:center;
     font-family: sans-serif;
+    
   }
   
   .signup-box {
     width: 360px;
-    height: 620px;
+    height: 660px;
     margin: auto;
     background-color: #5b3ad4;
     
     border-radius: 5px;
+    
   }
   h1 {
     text-align: center;
@@ -27,6 +29,7 @@ body {
   form {
     width: 300px;
     margin-left: 20px;
+    transform: translateY(-45px);
   }
   
   form label {
@@ -60,14 +63,17 @@ input[type="submit"]:active{
 
   p {
     text-align: center;
-    padding-top: 20px;
-    font-size: 15px;
+    /*padding-top: 20px;*/
+    /*font-size: 15px;*/
   }
   .para-2 {
     text-align: center;
     color: white;
     font-size: 15px;
     margin-top: -10px;
+    transform: translateY(22px);
+  
+    
   }
   .para-2 a {
     color: #b40b0b;
@@ -76,7 +82,21 @@ input[type="submit"]:active{
     color: darkgrey;
    
   }
+
+
+  .TC{
+    transform: translateY(-45px);
+    
+  }
+  .error{
+    text-align: center;
+    transform: translateY(-15px);
+    font-size: 20px;
+  }
   
+  .extra-space {
+    height: 70px; /* same value as the padding-bottom value of .content */
+  }
 
   
   
