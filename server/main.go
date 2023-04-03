@@ -4,12 +4,15 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"text/template"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/tcolgate/mp3"
 )
 
 type CommandArgs struct {
@@ -111,74 +114,74 @@ func uploadsong(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
 	fmt.Println("sfdsdfsdf first time on post")
+
+	file, handler, err := r.FormFile("myFile")
+	if err != nil {
+		fmt.Println("Error Retrieving the File")
+		fmt.Println(err)
+		return
+	}
+	defer file.Close()
+
+	tempFile, err := os.Create("")
 	title := r.FormValue("song_name")
+	artist_name := r.FormValue("artist_name")
+	if title == "" {
+		tempFile, err = os.Create("songs/" + handler.Filename)
+	} else {
+		tempFile, err = os.Create("songs/" + artist_name + "-" + title + ".mp3")
 
-	// file, handler, err := r.FormFile("myFile")
-	// if err != nil {
-	// 	fmt.Println("Error Retrieving the File")
-	// 	fmt.Println(err)
-	// 	return
-	// }
-	// defer file.Close()
-
-	// tempFile, err := os.Create("")
-
-	// if title == "" {
-	// 	tempFile, err = os.Create("songs/" + handler.Filename)
-	// } else {
-	// 	tempFile, err = os.Create("songs/" + title + ".mp3")
-
-	// }
+	}
 	fmt.Println(title + " this is my tite")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// defer tempFile.Close()
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer tempFile.Close()
 
-	// _, err = io.Copy(tempFile, file)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
+	_, err = io.Copy(tempFile, file)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	// t := 0.0
+	t := 0.0
 
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	// d := mp3.NewDecoder(tempFile)
-	// var f mp3.Frame
-	// skipped := 0
+	d := mp3.NewDecoder(tempFile)
+	var f mp3.Frame
+	skipped := 0
 
-	// for {
+	for {
 
-	// 	if err := d.Decode(&f, &skipped); err != nil {
-	// 		if err == io.EOF {
-	// 			break
-	// 		}
-	// 		fmt.Println(err)
-	// 		return
-	// 	}
+		if err := d.Decode(&f, &skipped); err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Println(err)
+			return
+		}
 
-	// 	t = t + f.Duration().Seconds()
-	// }
+		t = t + f.Duration().Seconds()
+	}
 
-	// fmt.Println(t)
+	fmt.Println(t)
 
-	// insert, err2 := myDB().Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `listens`) VALUES (?, ?, ?, ?, ?, '1');")
-	// if err2 != nil {
-	// 	fmt.Println(err2)
-	// }
-	// res, err := insert.Exec(time.Now().UTC(), string(title), t, 0, "/songs/"+title, 0)
-	// rowsAffec, _ := res.RowsAffected()
-	// if err != nil || rowsAffec != 1 {
-	// 	fmt.Println("Error inserting row:", err)
-	// 	tpl.ExecuteTemplate(w, "upload_song.html", "Error inserting data, please check all fields.")
-	// 	return
-	// }
-	tpl.ExecuteTemplate(w, "upload_song.html", "")
+	insert, err2 := myDB().Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `listens`) VALUES (?, ?, ?, ?, ?, '1');")
+	if err2 != nil {
+		fmt.Println(err2)
+	}
+	res, err := insert.Exec(time.Now().UTC(), string(title), t, 0, "/songs/"+title, 0)
+	rowsAffec, _ := res.RowsAffected()
+	if err != nil || rowsAffec != 1 {
+		fmt.Println("Error inserting row:", err)
+		tpl.ExecuteTemplate(w, "upload_song.html", "Error inserting data, please check all fields.")
+		return
+	}
+	tpl.ExecuteTemplate(w, "upload_song.html", "Song successfuly uploaded")
 }
 
 func addAccountSignUp(w http.ResponseWriter, r *http.Request) {
@@ -288,10 +291,10 @@ func main() {
 	// })
 	mux := http.NewServeMux()
 	test := webHandler{mu: mux}
-	mux.HandleFunc("/", test.login)
+	mux.HandleFunc("/login.html", test.login)
 	mux.HandleFunc("/signup", addAccountSignUp)
 
-	mux.HandleFunc("/home.html", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/home.html")
 	})
 	mux.HandleFunc("/upload_song", uploadsong)
@@ -304,8 +307,14 @@ func main() {
 	mux.HandleFunc("/myaccount.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/myaccount.html")
 	})
+	mux.HandleFunc("/editP.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/editP.html")
+	})
+	mux.HandleFunc("/changepass.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/changepass.html")
+	})
 	mux.HandleFunc("/AO.html", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/myaccount.html")
+		http.ServeFile(w, r, "./web/AO.html")
 	})
 	mux.HandleFunc("/createplay.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/createplay.html")

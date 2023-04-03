@@ -20,60 +20,61 @@
     </ul>
 </div>
 </header>
-<div class="main">
-
-    <h1>Upload a Song</h1>
-<br>
-    <label for="Song_name">Song Name:</label>
-<input type="text" id="song_name" name="song_name" minlength="1">
-<br>
-<br>
-<label for="album_name">Album:</label>
-<input type="text" id="album_name" name="album_name" minlength="1">
-<br>
-<br>
-<label for="artist_name">Artist Name:</label>
-<input type="text" id="artist_name" name="artist_name" minlength="1">
-<br>
-<br>
-<label for="release_date">Release Date:</label>
-<input type="text" id="release_date" name="release_date" minlength="1">
-<br>
-<br>
-<label for="producer">Producer:</label>
-<input type="text" id="producer" name="producer" minlength="1">
-<br>
-<br>
-<label for="featured_artists ">Featured Artists:</label>
-<input type="text" id="featured_artists " name="featured_artists " minlength="1"> 
-
-<br>
-<br>
-<label for="genre">Choose a genre:</label>
-<select name="genre" id="genre">
-    <option value="Pop">Pop</option>
-  <option value="Rock">Rock</option>
-  <option value="Hip-hop">Hip-Hop</option>
-  <option value="Country">Country</option>
-  <option value="Classical">Classical</option>
-  <option value="Jazz">Jazz</option>
-</select>
-<br>
-<br>
-<p>Click on the "Choose File" button to upload a file:</p>
-
 <form method="POST" enctype="multipart/form-data" >
-  <input type="file" name="myFile" />
-  <div class="submit-wrapper">
-    <input class="up"type="submit" value="Upload"/>
+
+  <div class="main">
+
+      <h1>Upload a Song</h1>
+  <br>
+      <label for="Song_name">Song Name:</label>
+  <input type="text" id="song_name" name="song_name" minlength="1">
+  <br>
+  <br>
+  <label for="album_name">Album:</label>
+  <input type="text" id="album_name" name="album_name" minlength="1">
+  <br>
+  <br>
+  <label for="artist_name">Artist Name:</label>
+  <input type="text" id="artist_name" name="artist_name" minlength="1">
+  <br>
+  <br>
+  <label for="release_date">Release Date:</label>
+  <input type="text" id="release_date" name="release_date" minlength="1">
+  <br>
+  <br>
+  <label for="producer">Producer:</label>
+  <input type="text" id="producer" name="producer" minlength="1">
+  <br>
+  <br>
+  <label for="featured_artists ">Featured Artists:</label>
+  <input type="text" id="featured_artists " name="featured_artists " minlength="1"> 
+
+  <br>
+  <br>
+  <label for="genre">Choose a genre:</label>
+  <select name="genre" id="genre">
+      <option value="Pop">Pop</option>
+    <option value="Rock">Rock</option>
+    <option value="Hip-hop">Hip-Hop</option>
+    <option value="Country">Country</option>
+    <option value="Classical">Classical</option>
+    <option value="Jazz">Jazz</option>
+  </select>
+  <br>
+  <br>
+  <p>Click on the "Choose File" button to upload a file:</p>
+
+    <input type="file" name="myFile" />
+    <div class="submit-wrapper">
+      <input class="up"type="submit" value="Upload"/>
+    </div>
+    {{if .}}
+          <p style="color:red">{{.}}</p>
+    {{end}}
+
+
+
   </div>
-  {{if .}}
-        <p style="color:red">{{.}}</p>
-  {{end}}
-
-
-
-</div>
 </form>
 
 </body>
