@@ -31,6 +31,10 @@ type User struct {
 	date_regist string
 	name_user   string
 }
+type Songs struct {
+	song     string
+	songlist []string
+}
 type dbstruct struct {
 	mydb *sql.DB
 }
@@ -106,6 +110,28 @@ func (we webHandler) login(w http.ResponseWriter, r *http.Request) {
 	}
 	return
 	//test
+}
+func (mydb dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		tpl.ExecuteTemplate(w, "search.html", nil)
+		return
+	}
+	fmt.Println("here")
+	songs, err2 := mydb.mydb.Query("SELECT * FROM song")
+
+	if err2 != nil {
+		fmt.Println(songs)
+	}
+	defer songs.Close()
+	count := 0
+	var t Songs
+	for songs.Next() {
+		songs.Scan(&t.song)
+		t.songlist[count] = t.song
+		count++
+	}
+	tpl.ExecuteTemplate(w, "search.html", t)
+
 }
 
 func (mydb dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
@@ -307,9 +333,7 @@ func main() {
 		http.ServeFile(w, r, "./web/home.html")
 	})
 	mux.HandleFunc("/upload_song", mydb.uploadsong)
-	mux.HandleFunc("/search.html", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/search.html")
-	})
+	mux.HandleFunc("/search.html", mydb.searchList)
 	mux.HandleFunc("/forgotpassword.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/forgotpassword.html")
 	})
