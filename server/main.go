@@ -117,7 +117,7 @@ func (mydb dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("here")
-	songs, err2 := mydb.mydb.Query("SELECT * FROM song")
+	songs, err2 := mydb.mydb.Query("SELECT title FROM song")
 
 	if err2 != nil {
 		fmt.Println(songs)
@@ -125,11 +125,15 @@ func (mydb dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 	defer songs.Close()
 	count := 0
 	var t Songs
+	list := []string{}
 	for songs.Next() {
 		songs.Scan(&t.song)
-		t.songlist[count] = t.song
+
+		list = append(list, t.song)
 		count++
 	}
+	t.songlist = list
+
 	tpl.ExecuteTemplate(w, "search.html", t)
 
 }

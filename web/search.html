@@ -45,7 +45,7 @@
           </div>-->
     </header>
     <div class="container">
-        <form>
+        <form method="POST">
             <input type="text" placeholder="What do you want to listen to?">
             <button type="submit">Search</button>
             <div class="dropdow">
@@ -61,7 +61,12 @@
         
          <span id="selectedOption">?</span>
 
-        </form>
+      </form>
+        {{range .songlist}}
+          <div class="error">
+            <p style="color:red">{{.}}</p>
+          </div>
+        {{end}}
         <audio id="myAudio">
             <source src="savedSongs/a-a.mp3" type="audio/mp3">
           </audio>
