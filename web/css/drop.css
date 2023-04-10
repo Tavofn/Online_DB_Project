@@ -92,16 +92,12 @@
   }*/
   .dropdow {
     position: absolute;
-    top: calc(100% + 10px);
+    /* top: calc(100% + 10px); */
     
-    right: 0;
+    right: 625px;
     
     
   }
-  
-  /*form button {
-    position: relative;
-  }*/
   
   .dropbt {
     background-color:purple;
@@ -110,8 +106,8 @@
     border: none;
     outline: none;
     cursor: pointer;
-    /*width:150px;*/
-   
+
+    
     
    
   }

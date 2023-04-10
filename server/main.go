@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"text/template"
 	"time"
 
@@ -32,8 +33,15 @@ type User struct {
 	name_user   string
 }
 type Songs struct {
-	song     string
-	songlist []string
+	Song     string
+	Songlist []string
+	Count    int
+}
+type SongsChild struct {
+	Song        string
+	Songlist    []string
+	Count       int
+	MySongChild Songs
 }
 type dbstruct struct {
 	mydb *sql.DB
@@ -113,28 +121,107 @@ func (we webHandler) login(w http.ResponseWriter, r *http.Request) {
 }
 func (mydb dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		tpl.ExecuteTemplate(w, "search.html", nil)
+		songs, err2 := mydb.mydb.Query("SELECT title FROM song")
+		if err2 != nil {
+			fmt.Println(songs)
+		}
+		defer songs.Close()
+		count := 0
+		var t Songs
+		list := []string{}
+		for songs.Next() {
+			songs.Scan(&t.Song)
+			list = append(list, t.Song)
+			count++
+		}
+		newlist := []string{}
+
+		for x := 0; x < len(list)-1; x++ {
+			newlist = append(newlist, list[x][0:strings.Index(list[x], "-")])
+			// fmt.Println(strings.Index(list[x], "-"))
+			// fmt.Println(list[x][0:strings.Index(list[x], "-")])
+		}
+		for x := 0; x < len(list); x++ {
+			newlist = append(newlist, list[x][strings.Index(list[x], "-")+1:len(list[x])])
+			// fmt.Println(list[x][strings.Index(list[x], "-")+1 : len(list[x])])
+		}
+
+		t.Songlist = newlist
+		t.Count = 10
+		if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
+			fmt.Println(err)
+		}
+		// tpl.ExecuteTemplate(w, "search.html", nil)
 		return
 	}
 	fmt.Println("here")
-	songs, err2 := mydb.mydb.Query("SELECT title FROM song")
+	searchType := r.FormValue("selectedOption")
+	search := r.FormValue("mysearch")
+	fmt.Println("before")
+	if searchType == "Song Name" {
 
-	if err2 != nil {
-		fmt.Println(songs)
+		songs, err2 := mydb.mydb.Query("SELECT title FROM song")
+		if err2 != nil {
+			fmt.Println(songs)
+		}
+		defer songs.Close()
+		count := 0
+		var t Songs
+		list := []string{}
+		for songs.Next() {
+			songs.Scan(&t.Song)
+			if t.Song == search {
+				list = append(list, t.Song[strings.Index(t.Song, "-")+1:len(t.Song)])
+			}
+			count++
+		}
+		t.Songlist = list
+		t.Count = 10
+		if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
+			fmt.Println(err)
+		}
+	} else if searchType == "Genre" {
+		songs, err2 := mydb.mydb.Query("SELECT title FROM song")
+		if err2 != nil {
+			fmt.Println(songs)
+		}
+		defer songs.Close()
+		count := 0
+		var t Songs
+		list := []string{}
+		for songs.Next() {
+			songs.Scan(&t.Song)
+
+			list = append(list, t.Song)
+			count++
+		}
+		t.Songlist = list
+		t.Count = 10
+		if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
+			fmt.Println(err)
+		}
+	} else if searchType == "Artist" {
+		songs, err2 := mydb.mydb.Query("SELECT title FROM song")
+		if err2 != nil {
+			fmt.Println(songs)
+		}
+		defer songs.Close()
+		count := 0
+		var t Songs
+		list := []string{}
+		for songs.Next() {
+			songs.Scan(&t.Song)
+			if t.Song == search {
+				list = append(list, t.Song[0:strings.Index(t.Song, "-")])
+			}
+			count++
+		}
+		t.Songlist = list
+		t.Count = 10
+		if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
+			fmt.Println(err)
+		}
 	}
-	defer songs.Close()
-	count := 0
-	var t Songs
-	list := []string{}
-	for songs.Next() {
-		songs.Scan(&t.song)
-
-		list = append(list, t.song)
-		count++
-	}
-	t.songlist = list
-
-	tpl.ExecuteTemplate(w, "search.html", t)
 
 }
 

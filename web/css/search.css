@@ -37,3 +37,11 @@ form button{
     cursor: pointer;
 
 }
+#select-box{
+    /* height:40px; */
+    overflow-y:auto;
+      /* width:50px; */
+  }
+  /* option{
+    overflow-y:scroll;
+  } */

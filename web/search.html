@@ -9,6 +9,7 @@
     <script>
         function updateSelectedOption(option) {
   document.getElementById("selectedOption").innerHTML = option;
+  document.getElementById("selectedOption").localName = option;
 }
 
     </script>
@@ -46,30 +47,41 @@
     </header>
     <div class="container">
         <form method="POST">
-            <input type="text" placeholder="What do you want to listen to?">
+            <input list="mysongs" name = "mysearch" type="text" placeholder="What do you want to listen to?">
+            <datalist id="mysongs">
+              {{range $element := .Songlist}} 
+                  <option value = "{{$element}}"></option>
+                  <br>
+                {{end}}
+              </datalist>
             <button type="submit">Search</button>
             <div class="dropdow">
-                <button class="dropbt">Search By &#9660</button>
+                <button type="button" class="dropbt">Search By &#9660</button>
                 <div class="dropdow-content">
                   <a href="#" onclick="updateSelectedOption('Song Name')">Song Name</a>
                   <a href="#" onclick="updateSelectedOption('Genre')">Genre</a>
-                  <a href="#"onclick="updateSelectedOption('Playlist')">Playlist</a>
+                  <a href="#"onclick="updateSelectedOption('Artist')">Playlist</a>
             
                 </div>
             
         </div>
         
-         <span id="selectedOption">?</span>
+         <span name = "selectedOption"id="selectedOption">?</span>
 
       </form>
-        {{range .songlist}}
-          <div class="error">
-            <p style="color:red">{{.}}</p>
-          </div>
-        {{end}}
-        <audio id="myAudio">
-            <source src="savedSongs/a-a.mp3" type="audio/mp3">
-          </audio>
+      
+
+        <select hidden id="select-box" name = "test" size={{.Count}}>
+          <!-- {{range $element := .Songlist}} 
+            <option>{{$element}} </option>
+            <br>
+          {{end}} -->
+      </select>
+      </div>
+
+      <audio id="myAudio">
+        <source src="savedSongs/a-a.mp3" type="audio/mp3">
+      </audio>  
         <button onclick="playPause()">Play/Pause</button>
     </div>
 <script>
