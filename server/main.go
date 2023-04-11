@@ -13,7 +13,6 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/tcolgate/mp3"
 )
 
 type CommandArgs struct {
@@ -50,6 +49,7 @@ type SongsChild struct {
 }
 type dbstruct struct {
 	mydb *sql.DB
+	user User
 }
 
 var tpl *template.Template
@@ -80,7 +80,7 @@ func myDB() *sql.DB {
 	}
 	return db
 }
-func (we webHandler) login(w http.ResponseWriter, r *http.Request) {
+func (mydb dbstruct) login(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("im here")
 	if r.Method == "GET" {
 		fmt.Println("in get rn")
@@ -97,7 +97,7 @@ func (we webHandler) login(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	query, err := myDB().Query("SELECT username,password FROM USER")
+	query, err := mydb.mydb.Query("SELECT username,password FROM USER")
 	// fmt.Println("out of get on query")
 	if err != nil {
 		fmt.Println("query fail")
@@ -119,18 +119,51 @@ func (we webHandler) login(w http.ResponseWriter, r *http.Request) {
 		var t User
 		query.Scan(&t.username, &t.password)
 		if t.username == username && t.password == password {
-			fmt.Print("correct")
+			fmt.Println("correct")
 
-			err := tpl.ExecuteTemplate(w, "home.html", "")
+			mydb.user.username = username
+			mydb.user.password = password
+			myquery := fmt.Sprintf("SELECT UserID FROM USER WHERE username=\"%s\"", string(username))
+			queryuserID, err := mydb.mydb.Query(myquery)
+			queryEmail, err := mydb.mydb.Query("SELECT email FROM USER WHERE username=?", string(username))
+			myqueryDate := fmt.Sprintf("SELECT date_registered FROM USER WHERE username=\"%s\"", username)
+			queryDate, err := mydb.mydb.Query(myqueryDate)
 			if err != nil {
+				fmt.Println(err, "error here")
+			} else {
+				fmt.Println("no error on queries login")
+			}
+			userID := -1
+			queryuserID.Next()
+			queryuserID.Scan(&userID)
+			fmt.Println(userID)
+			mydb.user.userid = userID
+
+			var email string
+			queryEmail.Next()
+			if err := queryEmail.Scan(&email); err != nil {
+				panic(err)
+			}
+			fmt.Println(email)
+			mydb.user.email = email
+
+			date := time.Now().Format("2006-01-02 15:04:05")
+			queryDate.Next()
+			queryDate.Scan(&date)
+			fmt.Println(date)
+			mydb.user.date_regist = date
+
+			err2 := tpl.ExecuteTemplate(w, "home.html", "")
+			if err2 != nil {
 				fmt.Println("ON HOME ERROR")
-				fmt.Println(err)
+				fmt.Println(err2)
 			}
 			return
 		}
 
 	}
 	fmt.Println("incorrect")
+
 	err2 := tpl.ExecuteTemplate(w, "login.html", "Login failed, please try again")
 	if err2 != nil {
 		fmt.Println("on login failed")
@@ -176,77 +209,77 @@ func (mydb dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 	}
 	r.ParseForm()
 
-	fmt.Println("here")
-	searchType := r.FormValue("selectedOptionNAME")
-	search := r.FormValue("mysearch")
-	fmt.Println(string(searchType))
-	fmt.Println("before")
-	if searchType == "Song Name" {
-		fmt.Println("i'm here now")
-		songs, err2 := mydb.mydb.Query("SELECT title FROM song")
-		if err2 != nil {
-			fmt.Println(songs)
-		}
-		defer songs.Close()
-		count := 0
-		var t Songs
-		list := []string{}
-		for songs.Next() {
-			songs.Scan(&t.Song)
-			if strings.Index(t.Song[0:strings.Index(t.Song, "-")-1], search) != -1 {
-				fmt.Println("found")
-				list = append(list, t.Song)
-			}
-			fmt.Println(t.Song)
-			count++
-		}
-		t.Songlist = list
-		t.Count = 10
-		if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
-			fmt.Println(err)
-		}
-	} else if searchType == "Genre" {
-		songs, err2 := mydb.mydb.Query("SELECT genre FROM artist")
-		if err2 != nil {
-			fmt.Println(songs)
-		}
-		defer songs.Close()
-		count := 0
-		var t Songs
-		list := []string{}
-		for songs.Next() {
-			songs.Scan(&t.Song)
+	// fmt.Println("here")
+	// searchType := r.FormValue("selectedOptionNAME")
+	// search := r.FormValue("mysearch")
+	// fmt.Println(string(searchType))
+	// fmt.Println("before")
+	// if searchType == "Song Name" {
+	// 	fmt.Println("i'm here now")
+	// 	songs, err2 := mydb.mydb.Query("SELECT title FROM song")
+	// 	if err2 != nil {
+	// 		fmt.Println(songs)
+	// 	}
+	// 	defer songs.Close()
+	// 	count := 0
+	// 	var t Songs
+	// 	list := []string{}
+	// 	for songs.Next() {
+	// 		songs.Scan(&t.Song)
+	// 		if strings.Index(t.Song[0:strings.Index(t.Song, "-")-1], search) != -1 {
+	// 			fmt.Println("found")
+	// 			list = append(list, t.Song)
+	// 		}
+	// 		fmt.Println(t.Song)
+	// 		count++
+	// 	}
+	// 	t.Songlist = list
+	// 	t.Count = 10
+	// 	if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
+	// 		fmt.Println(err)
+	// 	}
+	// } else if searchType == "Genre" {
+	// 	songs, err2 := mydb.mydb.Query("SELECT genre FROM artist")
+	// 	if err2 != nil {
+	// 		fmt.Println(songs)
+	// 	}
+	// 	defer songs.Close()
+	// 	count := 0
+	// 	var t Songs
+	// 	list := []string{}
+	// 	for songs.Next() {
+	// 		songs.Scan(&t.Song)
 
-			list = append(list, t.Song)
-			count++
-		}
-		t.Songlist = list
-		t.Count = 10
-		if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
-			fmt.Println(err)
-		}
-	} else if searchType == "Artist" {
-		songs, err2 := mydb.mydb.Query("SELECT title FROM song")
-		if err2 != nil {
-			fmt.Println(songs)
-		}
-		defer songs.Close()
-		count := 0
-		var t Songs
-		list := []string{}
-		for songs.Next() {
-			songs.Scan(&t.Song)
-			if t.Song == search {
-				list = append(list, t.Song[0:strings.Index(t.Song, "-")])
-			}
-			count++
-		}
-		t.Songlist = list
-		t.Count = 10
-		if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
-			fmt.Println(err)
-		}
-	}
+	// 		list = append(list, t.Song)
+	// 		count++
+	// 	}
+	// 	t.Songlist = list
+	// 	t.Count = 10
+	// 	if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
+	// 		fmt.Println(err)
+	// 	}
+	// } else if searchType == "Artist" {
+	// 	songs, err2 := mydb.mydb.Query("SELECT title FROM song")
+	// 	if err2 != nil {
+	// 		fmt.Println(songs)
+	// 	}
+	// 	defer songs.Close()
+	// 	count := 0
+	// 	var t Songs
+	// 	list := []string{}
+	// 	for songs.Next() {
+	// 		songs.Scan(&t.Song)
+	// 		if t.Song == search {
+	// 			list = append(list, t.Song[0:strings.Index(t.Song, "-")])
+	// 		}
+	// 		count++
+	// 	}
+	// 	t.Songlist = list
+	// 	t.Count = 10
+	// 	if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
+	// 		fmt.Println(err)
+	// 	}
+	// }
 
 }
 
@@ -289,37 +322,37 @@ func (mydb dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t := 0.0
+	// t := 0.0
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
 
-	d := mp3.NewDecoder(tempFile)
-	var f mp3.Frame
-	skipped := 0
+	// d := mp3.NewDecoder(tempFile)
+	// var f mp3.Frame
+	// skipped := 0
 
-	for {
+	// for {
 
-		if err := d.Decode(&f, &skipped); err != nil {
-			if err == io.EOF {
-				break
-			}
-			fmt.Println(err)
-			return
-		}
+	// 	if err := d.Decode(&f, &skipped); err != nil {
+	// 		if err == io.EOF {
+	// 			break
+	// 		}
+	// 		fmt.Println(err)
+	// 		return
+	// 	}
 
-		t = t + f.Duration().Seconds()
-	}
+	// 	t = t + f.Duration().Seconds()
+	// }
 
-	fmt.Println(t)
+	// fmt.Println(t)
 	// userid, err3 := mydb.mydb.Prepare("SELECT UserID FROM user WHERE username = AND password = ")
 	searchArtist, err2 := mydb.mydb.Query("SELECT artist_name FROM artist")
 	if err2 != nil {
 		fmt.Println(err2)
 	} else {
-		fmt.Println("no error")
+		fmt.Println("no error on search artist")
 	}
 
 	for searchArtist.Next() {
@@ -329,9 +362,13 @@ func (mydb dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 			isFound = true
 		}
 	}
+	fmt.Println("after search artist next")
 	if !isFound {
-		insertARTIST, err2 := mydb.mydb.Prepare("INSERT INTO `artist` (`artist_name`, `time`, `genre`, `average_rating`) VALUES (?, ?, ?, ?);")
-		res2, err2 := insertARTIST.Exec(string(artist_name), 0, string(r.FormValue("Genre")), 0)
+		insertARTIST, err2 := mydb.mydb.Prepare("INSERT INTO `artist` (`artist_name`, `genre`, `average_rating`) VALUES (?, ?, ?);")
+		fmt.Println("after prep")
+		res2, err2 := insertARTIST.Exec(string(artist_name), string(r.FormValue("genre")), 0)
+		fmt.Println("after execute")
+
 		if err2 != nil {
 			fmt.Println(err2)
 		} else {
@@ -339,11 +376,18 @@ func (mydb dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Println(res2)
 	}
+	artistname := string(r.FormValue("artist_name"))
+	artistIDQuery := fmt.Sprintf("SELECT ArtistID FROM ARTIST WHERE artist_name=\"%s\"", artistname)
+	myartistID, err2 := mydb.mydb.Query(artistIDQuery)
+	fmt.Println("after query artistid")
 
-	myartistID, err2 := mydb.mydb.Query("SELECT artistID FROM ARTIST WHERE artistname = " + string(r.FormValue("artist_name")))
+	myartistID.Next()
 	artistidNUM := 0
 	myartistID.Scan(&artistidNUM)
-	insert, err2 := mydb.mydb.Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `UserID`, `listens`, `artistID`) VALUES (?, ?, ?, ?, ?, ?, ?);")
+
+	fmt.Println("after scan")
+	insert, err2 := mydb.mydb.Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `UserID`, `listens`, `artist_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);")
+	fmt.Println("after prep insert song")
 
 	if err2 != nil {
 		fmt.Println(err2)
@@ -351,7 +395,8 @@ func (mydb dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("no error")
 	}
 
-	res, err := insert.Exec(time.Now(), string(artist_name+"-"+title), 0, 0, "/songs/"+string(artist_name+"-"+title), 1, artistidNUM)
+	res, err := insert.Exec(time.Now(), string(artist_name+"-"+title), 0, 0, "/songs/"+string(artist_name+"-"+title), mydb.user.userid, 1, artistidNUM)
+	fmt.Println("after song exe")
 
 	// rowsAffec, _ := res.RowsAffected()
 	fmt.Println(res)
@@ -364,7 +409,10 @@ func (mydb dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 
 	tpl.ExecuteTemplate(w, "upload_song.html", "Song successfuly uploaded")
 }
+func (mydb dbstruct) home(w http.ResponseWriter, r *http.Request) {
 
+	tpl.ExecuteTemplate(w, "home_nologin.html", nil)
+}
 func (mydb dbstruct) addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("*****insertHandler running*****")
 	if r.Method == "GET" {
@@ -471,14 +519,13 @@ func main() {
 	// 	http.ServeFile(w, r, "./web/signup.html")
 	// })
 	mux := http.NewServeMux()
-	test := webHandler{mu: mux}
-	mydb := dbstruct{mydb: myDB()}
-	mux.HandleFunc("/login.html", test.login)
+
+	mydb := dbstruct{mydb: myDB(), user: User{}}
+	// test := webHandler{mu: mux}
+	mux.HandleFunc("/login.html", mydb.login)
 	mux.HandleFunc("/signup", mydb.addAccountSignUp)
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/home.html")
-	})
+	mux.HandleFunc("/", mydb.home)
 	mux.HandleFunc("/upload_song", mydb.uploadsong)
 	mux.HandleFunc("/search.html", mydb.searchList)
 	mux.HandleFunc("/forgotpassword.html", func(w http.ResponseWriter, r *http.Request) {
