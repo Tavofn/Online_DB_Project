@@ -13,6 +13,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/tcolgate/mp3"
 )
 
 type CommandArgs struct {
@@ -33,9 +34,13 @@ type User struct {
 	name_user   string
 }
 type Songs struct {
-	Song     string
-	Songlist []string
-	Count    int
+	Song         string
+	SonglistData []string
+	Songlist     []string
+	Count        int
+}
+type Artist struct {
+	artist string
 }
 type SongsChild struct {
 	Song        string
@@ -50,6 +55,21 @@ type dbstruct struct {
 var tpl *template.Template
 
 var isTrue bool = false
+
+/*
+TODO
+
+*full functioning music player
+**with UI interface
+*playlist functionality
+**front page, search through foreign key (userID) linked to songs
+*foreign key for artist inside song
+*
+
+
+
+
+*/
 
 func myDB() *sql.DB {
 	//pass, err := ioutil.ReadFile("pass.txt")
@@ -146,7 +166,7 @@ func (mydb dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 			// fmt.Println(list[x][strings.Index(list[x], "-")+1 : len(list[x])])
 		}
 
-		t.Songlist = newlist
+		t.SonglistData = newlist
 		t.Count = 10
 		if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
 			fmt.Println(err)
@@ -154,12 +174,15 @@ func (mydb dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 		// tpl.ExecuteTemplate(w, "search.html", nil)
 		return
 	}
+	r.ParseForm()
+
 	fmt.Println("here")
-	searchType := r.FormValue("selectedOption")
+	searchType := r.FormValue("selectedOptionNAME")
 	search := r.FormValue("mysearch")
+	fmt.Println(string(searchType))
 	fmt.Println("before")
 	if searchType == "Song Name" {
-
+		fmt.Println("i'm here now")
 		songs, err2 := mydb.mydb.Query("SELECT title FROM song")
 		if err2 != nil {
 			fmt.Println(songs)
@@ -170,9 +193,11 @@ func (mydb dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 		list := []string{}
 		for songs.Next() {
 			songs.Scan(&t.Song)
-			if t.Song == search {
-				list = append(list, t.Song[strings.Index(t.Song, "-")+1:len(t.Song)])
+			if strings.Index(t.Song[0:strings.Index(t.Song, "-")-1], search) != -1 {
+				fmt.Println("found")
+				list = append(list, t.Song)
 			}
+			fmt.Println(t.Song)
 			count++
 		}
 		t.Songlist = list
@@ -181,7 +206,7 @@ func (mydb dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 		}
 	} else if searchType == "Genre" {
-		songs, err2 := mydb.mydb.Query("SELECT title FROM song")
+		songs, err2 := mydb.mydb.Query("SELECT genre FROM artist")
 		if err2 != nil {
 			fmt.Println(songs)
 		}
@@ -226,6 +251,7 @@ func (mydb dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 }
 
 func (mydb dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
+	isFound := false
 	if r.Method == "GET" {
 		tpl.ExecuteTemplate(w, "upload_song.html", nil)
 		return
@@ -263,40 +289,69 @@ func (mydb dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// t := 0.0
+	t := 0.0
 
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	// d := mp3.NewDecoder(tempFile)
-	// var f mp3.Frame
-	// skipped := 0
+	d := mp3.NewDecoder(tempFile)
+	var f mp3.Frame
+	skipped := 0
 
-	// for {
+	for {
 
-	// 	if err := d.Decode(&f, &skipped); err != nil {
-	// 		if err == io.EOF {
-	// 			break
-	// 		}
-	// 		fmt.Println(err)
-	// 		return
-	// 	}
+		if err := d.Decode(&f, &skipped); err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Println(err)
+			return
+		}
 
-	// 	t = t + f.Duration().Seconds()
-	// }
+		t = t + f.Duration().Seconds()
+	}
 
-	// fmt.Println(t)
+	fmt.Println(t)
 	// userid, err3 := mydb.mydb.Prepare("SELECT UserID FROM user WHERE username = AND password = ")
-
-	insert, err2 := mydb.mydb.Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `UserID`, `listens`) VALUES (?, ?, ?, ?, ?, ?, ?);")
+	searchArtist, err2 := mydb.mydb.Query("SELECT artist_name FROM artist")
 	if err2 != nil {
 		fmt.Println(err2)
 	} else {
 		fmt.Println("no error")
 	}
-	res, err := insert.Exec(time.Now(), string(artist_name+"-"+title), 0, 0, "/songs/"+string(artist_name+"-"+title), 1, 1)
+
+	for searchArtist.Next() {
+		var t Artist
+		searchArtist.Scan(&t.artist)
+		if t.artist == r.FormValue("artist_name") {
+			isFound = true
+		}
+	}
+	if !isFound {
+		insertARTIST, err2 := mydb.mydb.Prepare("INSERT INTO `artist` (`artist_name`, `time`, `genre`, `average_rating`) VALUES (?, ?, ?, ?);")
+		res2, err2 := insertARTIST.Exec(string(artist_name), 0, string(r.FormValue("Genre")), 0)
+		if err2 != nil {
+			fmt.Println(err2)
+		} else {
+			fmt.Println("no error")
+		}
+		fmt.Println(res2)
+	}
+
+	myartistID, err2 := mydb.mydb.Query("SELECT artistID FROM ARTIST WHERE artistname = " + string(r.FormValue("artist_name")))
+	artistidNUM := 0
+	myartistID.Scan(&artistidNUM)
+	insert, err2 := mydb.mydb.Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `UserID`, `listens`, `artistID`) VALUES (?, ?, ?, ?, ?, ?, ?);")
+
+	if err2 != nil {
+		fmt.Println(err2)
+	} else {
+		fmt.Println("no error")
+	}
+
+	res, err := insert.Exec(time.Now(), string(artist_name+"-"+title), 0, 0, "/songs/"+string(artist_name+"-"+title), 1, artistidNUM)
 
 	// rowsAffec, _ := res.RowsAffected()
 	fmt.Println(res)
@@ -306,6 +361,7 @@ func (mydb dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 		// tpl.ExecuteTemplate(w, "upload_song.html", "Error inserting data, please check all fields.")
 		return
 	}
+
 	tpl.ExecuteTemplate(w, "upload_song.html", "Song successfuly uploaded")
 }
 

@@ -6,13 +6,7 @@
    <link rel="stylesheet" href="/css/search.css">
     <link rel="stylesheet" type="text/css" href="/css/navbar.css"/>
     <link rel="stylesheet" type="text/css" href="/css/drop.css"/>
-    <script>
-        function updateSelectedOption(option) {
-  document.getElementById("selectedOption").innerHTML = option;
-  document.getElementById("selectedOption").localName = option;
-}
-
-    </script>
+   
     
 </head>
 <body>
@@ -49,7 +43,7 @@
         <form method="POST">
             <input list="mysongs" name = "mysearch" type="text" placeholder="What do you want to listen to?">
             <datalist id="mysongs">
-              {{range $element := .Songlist}} 
+              {{range $element := .SonglistData}} 
                   <option value = "{{$element}}"></option>
                   <br>
                 {{end}}
@@ -58,33 +52,44 @@
             <div class="dropdow">
                 <button type="button" class="dropbt">Search By &#9660</button>
                 <div class="dropdow-content">
-                  <a href="#" onclick="updateSelectedOption('Song Name')">Song Name</a>
-                  <a href="#" onclick="updateSelectedOption('Genre')">Genre</a>
-                  <a href="#"onclick="updateSelectedOption('Artist')">Playlist</a>
+                  <a onclick="updateSelectedOption('Song Name')">Song Name</a>
+                  <a onclick="updateSelectedOption('Genre')">Genre</a>
+                  <a onclick="updateSelectedOption('Artist')">Playlist</a>
             
                 </div>
             
         </div>
         
-         <span name = "selectedOption"id="selectedOption">?</span>
-
+         <span name = "selectedOption" id="selectedOption">?</span>
+         <input value="" id = "selectedOptionNAME" name = "selectedOptionNAME" type="text"  hidden>
       </form>
       
 
-        <select hidden id="select-box" name = "test" size={{.Count}}>
-          <!-- {{range $element := .Songlist}} 
-            <option>{{$element}} </option>
+        <select id="select-box" name = "test" size={{.Count}}>
+          {{range $element := .Songlist}} 
+            <option onclick="audioSound()">{{$element}} </option>
             <br>
-          {{end}} -->
+          {{end}}
       </select>
       </div>
 
       <audio id="myAudio">
-        <source src="savedSongs/a-a.mp3" type="audio/mp3">
+        <source id="source" src="" type="audio/mp3">
       </audio>  
         <button onclick="playPause()">Play/Pause</button>
     </div>
 <script>
+
+  function audioSound(option) {
+    console.log("here")
+    document.getElementById("source").innerHTML = option;
+}
+function updateSelectedOption(option) {
+    console.log("here")
+    document.getElementById("selectedOption").innerHTML = option;
+    document.getElementById("selectedOptionNAME").value = option;
+}
+
     var audio = document.getElementById("myAudio");
   
     function playPause() {
