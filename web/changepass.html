@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -61,4 +61,70 @@
 
         
 </body>
-</html>
+</html>-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/css/myaccount.css">
+    <title>My Account</title>
+    <!-- <script src="script.js"></script> -->
+    <style>
+      tr{
+        height: 50px;
+       }
+       tr:nth-child(odd) {
+        background-color: #f5f5f5;
+       }
+       input[type="text"], input[type="email"], input[type="date"], select {
+        width: 100%;
+        height: 30px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        padding: 5px;
+        margin-bottom: 10px;
+        
+       }
+       table td{
+        width:70%;
+       }
+
+    </style>
+</head>
+<body style = "background-color: black;">
+    <div class="container">
+		<div class="sidebar">
+			<h2>My Account</h2>
+			<div class="menu-item" id="overview" href="/AO.html">Account Overview</div>
+			<div class="menu-item" id="edit" href="/editP.html" >Edit Profile</div>
+			<div class="menu-item" id="changepass">Change Password</div>
+			<div class="menu-item" id="lout">Logout</div>
+		</div>
+		<div class="main-content" id="main-content">
+			<h1> Change Password</h1>
+			<div class="con">
+        <form action="update_profile.php" method="post">
+          <table>
+            <tr>
+              <td>Enter New Password</td>
+              <td><input type="text" name="first_name"></td>
+            </tr>
+            <tr>
+              <td>Confirm New Password</td>
+              <td><input type="text" name="last_name"></td>
+            </tr>
+            </table>
+            <br>
+            <input type="submit" value="Reset Password">
+        </form>
+				
+			  </div>
+		
+		</body>
+            
+		</div>
+	</div>
+
+    
+</body>
