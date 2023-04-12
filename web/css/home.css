@@ -4,6 +4,41 @@
     font-family: monospace;
 
 }
+.container{
+    position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-top: -60px;
+  margin-left: -230px;
+  
+}
+/* form{
+    
+    background: #fff;
+    width: 600px;
+    height: 55px;
+    display: flex;
+}
+form input{
+    flex: 1;
+    border: none;
+    outline: none;
+}
+form button{
+    background: purple;
+    padding: 10px 50px;
+    border: none;
+    outline: none;
+    color: #fff;
+    letter-spacing: 1px;
+    cursor: pointer;
+
+} */
+#select-box{
+    /* height:40px; */
+    overflow-y:auto;
+      /* width:50px; */
+  }
 
 body{
     background-image:url("/images/bkn.jpeg");
@@ -36,6 +71,48 @@ body{
               40px 40px 0px #c11a2b, 
               45px 45px 0px #c11a2b;
 }
+ #playBox {
+    width: 320px;
+    padding: 10px;
+    height: 500px;
+    background-color:gray;
+    position: fixed;
+    margin-top: 100px;
+    margin-left: 50px;
+  }
+  #playBoxPlayer {
+    width: 320px;
+    padding: 10px;
+    background-color:gray;
+ 
+
+    position: fixed;
+    top: 50%;
+    left: 43%;
+    margin-top: 300px;
+  }
+  #playBoxRight {
+    width: 320px;
+    padding: 10px;
+    height: 500px;
+    background-color:gray;
+    position: fixed;
+    margin-top: 100px;
+    margin-right: 50px;
+    right: 0;  
+}
+  #songtitle {
+    color:white;
+  }
+  #playpause {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+
+  }
 /*.dropdown-content {
     display: none;
     position: absolute;

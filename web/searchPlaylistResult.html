@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Bar</title>
+   <link rel="stylesheet" href="/css/search.css">
+    <link rel="stylesheet" type="text/css" href="/css/navbar.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/drop.css"/>
+   
+    
+</head>
+<body>
+    <header>
+        <div class="main">
+            <ul>
+                <li><a  href="/"> Home</a> </a></li>
+                <li><a  href="search.html"> Search </a> </a></li>
+                <li><a  href="upload_song"> Upload a Song </a> </a></li>
+                <li><a  href="reports.html"> Generate a Report </a> </a></li>
+                <li><a  href="createplay.html"> Create / View Playlists </a> </a></li>
+                <li class="dropdown">
+                    <a href="myaccount.html"> My Account &#9660;</a>
+                    <ul class="dropdown-content">
+                        <li><a href="AO.html">Account Settings</a></li>
+                        <li><a href="#">Logout</a></li>
+                    </ul>
+                </li>
+                
+            </ul>
+        </div>
+        <!--<div class="dropdow">
+            <button class="dropbt">Search By</button>
+            <div class="dropdow-content">
+              <a href="#">Song Name</a>
+              <a href="#">Genre</a>
+              <a href="#">Playlist</a>
+            </div>
+          </div>-->
+    </header>
+    <div class="container">
+        <form method="POST">
+            <input list="mysongs" name = "mysearch" type="text" placeholder="What do you want to listen to?">
+            <datalist id="mysongs">
+              {{range $element := .MySongChildData}} 
+                  <option value = "{{$element.Song}}"></option>
+                  <br>
+                {{end}}
+              </datalist>
+            <button type="submit">Search</button>
+            <div class="dropdow">
+                <button type="button" class="dropbt">Search By &#9660</button>
+                <div class="dropdow-content">
+                  <a onclick="updateSelectedOption('Song Name')">Song Name</a>
+                  <a onclick="updateSelectedOption('Genre')">Genre</a>
+                  <a onclick="updateSelectedOption('Artist')">Artist</a>
+            
+                </div>
+            
+        </div>
+        
+         <span name = "selectedOption" id="selectedOption">Song Name</span>
+         <input value="Song Name" id = "selectedOptionNAME" name = "selectedOptionNAME" type="text"  hidden>
+      </form>
+      
+
+        <select id="select-box" name = "test" size=10>
+          {{range $element := .MySongChild}} 
+            <option onclick="addAudioPath('{{$element.SongPath}}','{{$element.Song}}')"> {{$element.Song}} </option>
+            <br>
+ 
+          {{end}}
+      </select>
+      </div>
+
+      <audio id="myAudio">
+        <source id="source" src="" type="audio/mp3">
+      </audio>  
+
+      <div id = "playBox">
+        <p id = "songtitle"></p>
+        <button id = "playpause" onclick="playPause()">Play/Pause</button>
+      </div>
+
+    </div>
+<script>
+function addAudioPath(option, songtitle) {
+  document.getElementById("source").src = option
+  document.getElementById("songtitle").innerHTML = songtitle
+  console.log(document.getElementById("source").src)
+  var audio = document.getElementById("myAudio")
+  audio.load()
+}
+function updateSelectedOption(option) {
+    console.log("here")
+    document.getElementById("selectedOption").innerHTML = option;
+    document.getElementById("selectedOptionNAME").value = option;
+}
+
+    var audio = document.getElementById("myAudio");
+  
+    function playPause() {
+      if (audio.paused) {
+        console.log("play")
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    }
+  </script>
+</body>
+
+</html>
+    
+
