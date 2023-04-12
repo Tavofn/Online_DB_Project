@@ -224,7 +224,24 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.ParseForm()
+	fmt.Println("IM HERE AHAHAH IM HERE ON POST FOR SONG ID", r.FormValue("songID"))
+	if r.FormValue("songID") != "" {
+		conv, err := strconv.Atoi(r.FormValue("songID"))
+		getListens, err := mydb.mydb.Query("SELECT listens from SONG WHERE songID = ?", conv)
 
+		getListens.Next()
+		var listenNum int
+		getListens.Scan(&listenNum)
+
+		myupdate, err := mydb.mydb.Prepare("UPDATE SONG SET listens = ? WHERE songID = ?")
+		myupdateEXE, err := myupdate.Exec(listenNum, conv)
+		fmt.Println(myupdateEXE)
+
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	//THIS WILL SHOW YOU THE SEARCH RESULTS FROM INPUT
 	fmt.Println("here")
 	searchType := r.FormValue("selectedOptionNAME")
 	search := r.FormValue("mysearch")
