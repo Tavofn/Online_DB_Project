@@ -38,6 +38,7 @@ type User struct {
 type Songschild struct {
 	SongID   string
 	Song     string
+	Listens  string
 	SongPath string
 }
 type Artist struct {
@@ -61,6 +62,7 @@ type dbstructIsPlaylistSearch struct {
 }
 type playlist struct {
 	Plchild []playlistChild
+	Top5    []Songschild
 }
 type playlistChild struct {
 	Playlistname string
@@ -681,7 +683,6 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 			songnameList := ""
 			songpathList := ""
 			for myquery.Next() {
-				fmt.Println("here on myquery songlist")
 				//add songs under playlist name and id
 				myquery.Scan(&songname, &songpath)
 				songnameList = songnameList + songname + ","
@@ -691,7 +692,27 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 			temp := playlistChild{Playlistname: playlistname, PlaylistID: playlistid, Song: songnameList, SongPath: songpathList}
 			t.Plchild = append(t.Plchild, temp)
 		}
+		top5query, err := mydb.mydb.Query("SELECT song_id, listensTOP FROM TOP_5_SONGS ORDER BY listensTOP DESC")
 
+		var id int
+		var listens string
+
+		for top5query.Next() {
+			top5query.Scan(&id, &listens)
+			myquery, err := mydb.mydb.Query("SELECT title FROM SONG WHERE songID=?", id)
+			if err != nil {
+				fmt.Println(err)
+			}
+			var title string
+			myquery.Next()
+			myquery.Scan(&title)
+
+			temp := Songschild{Song: title, Listens: listens}
+			t.Top5 = append(t.Top5, temp)
+		}
+		if err != nil {
+			fmt.Println(err)
+		}
 		tpl.ExecuteTemplate(w, "home.html", t)
 	}
 	playlistIDVar := r.FormValue("playlistVals")
