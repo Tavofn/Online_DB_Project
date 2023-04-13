@@ -13,10 +13,11 @@
     <header>
         <div class="main">
             <ul>
-                <li><a  href="/"> Home</a> </a></li>
-                <li><a  href="search.html"> Search </a> </a></li>
-                <li><a  href="/signup"> Sign up </a> </a></li>
-                <li><a  href="login.html"> Login </a> </a></li>
+              <li><a  href="/"> Home</a> </a></li>
+              <li><a  href="search.html"> Search </a> </a></li>
+              <li><a  href="/signup"> Sign up </a> </a></li>
+              <li><a  href="login.html"> Login </a> </a></li>
+              
                 
             </ul>
         </div>
@@ -52,32 +53,34 @@
         
          <span name = "selectedOption" id="selectedOption">Song Name</span>
          <input value="Song Name" id = "selectedOptionNAME" name = "selectedOptionNAME" type="text"  hidden>
-      </form>
       
-
-        <select id="select-box" name = "test" size=10>
+      
+        <input name="songID" id="songID" value = "" hidden></input>
+        <select id="select-box" name = "test" size=10 onchange="console.log('BIG CHANGE');document.getElementById('songID').value = value;this.form.submit()">
           {{range $element := .MySongChild}} 
-            <option onclick="addAudioPath('{{$element.SongPath}}','{{$element.Song}}')"> {{$element.Song}} </option>
+            <option value="{{$element.SongID}}]{{$element.SongPath}}]{{$element.Song}}" > {{$element.Song}} </option>
             <br>
  
           {{end}}
       </select>
+    </form>
       </div>
 
       <audio id="myAudio">
-        <source id="source" src="" type="audio/mp3">
+        <source id="source" src="{{.SelectedSongPath}}" type="audio/mp3">
       </audio>  
 
       <div id = "playBox">
-        <p id = "songtitle"></p>
+        <p id = "songtitle">{{.SelectedSong}}</p>
         <button id = "playpause" onclick="playPause()">Play/Pause</button>
       </div>
 
     </div>
 <script>
-function addAudioPath(option, songtitle) {
-  document.getElementById("source").src = option
-  document.getElementById("songtitle").innerHTML = songtitle
+function addAudioPath(option) {
+  var bothVals = option.split("]")
+  document.getElementById("source").src = option[1]
+  document.getElementById("songtitle").innerHTML = option[2]
   console.log(document.getElementById("source").src)
   var audio = document.getElementById("myAudio")
   audio.load()
@@ -104,3 +107,6 @@ function updateSelectedOption(option) {
 </html>
     
 
+
+
+ 
