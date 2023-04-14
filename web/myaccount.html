@@ -12,10 +12,22 @@
     <div class="container">
 		<div class="sidebar">
 			<h2>My Account</h2>
-			<div class="menu-item" id="overview">Account Overview</div>
-			<div class="menu-item" id="edit" >Edit Profile</div>
-			<div class="menu-item" id="changepass">Change Password</div>
+
+			<a href="myaccount.html">
+				<div class="menu-item" id="overview">Account Overview</div>
+			</a>
+
+			<a href="/editP.html">
+				<div class="menu-item" id="edit" >Edit Profile</div>
+			</a>
+
+			<a href="/changepass.html">
+				<div class="menu-item" id="changepass">Change Password</div>
+			</a>
+
+			<a href="/logout">
 			<div class="menu-item" id="lout">Logout</div>
+		</a>
 		</div>
 		<div class="main-content" id="main-content">
 			<!-- Your main content goes here -->
@@ -24,28 +36,28 @@
 				<table>
 				   <tr>
 					<td>First Name:</td>
-					<td>John</td>
+					<td>{{.First}}</td>
 				   </tr>
 				   <tr>
 					<td>Last Name:</td>
-					<td>Doe</td>
+					<td>{{.Last}}</td>
 				   </tr>
 				  <tr>
 					<td>Username:</td>
-					<td>{{.username}}</td>
+					<td>{{.Username}}</td>
 				  </tr>
 				  <tr>
 					<td>User ID:</td>
-					<td>{{.userid}}</td>
+					<td>{{.UserID}}</td>
 				  </tr>
 				  <tr>
 					<td>Email:</td>
-					<td>{{.email}}</td>
+					<td>{{.Email}}</td>
 				  </tr>
 				  
 				  <tr>
 					<td>Date Registered:</td>
-					<td>{{.date_regist}}</td>
+					<td>{{.Date_regist}}</td>
 				  </tr>
 				 <!--<tr>
 					<td>Access Level:</td>
@@ -59,7 +71,7 @@
 		</div>
 	</div>
 
-	<!-- <script>
+	 <script>
 		const overviewBtn = document.getElementById("overview");
 		const editBtn = document.getElementById("edit");
 		const changep = document.getElementById("changepass")
@@ -90,6 +102,6 @@
 		
 
 
-	</script> -->
+	</script> 
     
 </body>

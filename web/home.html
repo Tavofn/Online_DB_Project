@@ -12,17 +12,17 @@
     <header>
         <div class="main">
             <ul>
-                <li><a  href="/home.html"> Home</a> </a></li>
+                <li><a  href="/"> Home</a> </a></li>
                 <li><a  href="/search.html"> Search </a> </a></li>
                 <li><a  href="upload_song"> Upload a Song </a> </a></li>
-                <li><a  href="reports.html"> Generate a Report </a> </a></li>
+                <li><a  href="reports"> Generate a Report </a> </a></li>
                 <li><a  href="createplay.html"> Create Playlists  </a> </a></li>
                 <!-- <li><a  href="/signup"> Sign up </a> </a></li> -->
                 <!-- <li><a  href="login.html"> Login </a> </a></li> -->
                 <li class="dropdown">
                     <a href="myaccount.html"> My Account &#9660;</a>
                     <ul class="dropdown-content">
-                        <li><a href="AO.html">Account Settings</a></li>
+                        <li><a href="myaccount.html">Account Settings</a></li>
                         <li><a href="/logout">Logout</a></li>
                     </ul>
                 </li>
@@ -34,8 +34,10 @@
             <div id="playBox">
                 <form method="POST">
                     <input id="playlistVals" name="playlistVals" value="" hidden>
-                    <input id="playlistVals" name="playlistVals" value="" hidden>
-                    <button type="submit" id="addButton" style="display:none;position:relative;right:0;">Add Song +</button>
+                    <input id="isPlaylistDelete" name="isPlaylistDelete" value="false" hidden>
+                    <input id="isSongDelete" name="isSongDelete" value="false" hidden>
+                    <button onclick="document.getElementById('isPlaylistDelete').value = 'true';" type="submit" id="removePlaylistButton" style="display:none;position:relative;right:2;">Remove Playlist -</button>
+                    <button onclick="document.getElementById('isSongDelete').value = 'true';" type="submit" id="addButton" style="display:none;position:relative;right:0;">Add Song +</button>
                     <button type="submit" id="removeButton" style="display:none;position:relative;right:2;">Remove Song -</button>
                     <p style="color:white">My Playlist</p>
                     <select id="" name = "test" size=10 onchange="console.log('here onclick');document.getElementById('playlistVals').value = value;listSongs(value);">
@@ -111,7 +113,7 @@
                 document.getElementById("select-box").style.display = "block";
                 document.getElementById("addButton").style.display = "block";
                 document.getElementById("removeButton").style.display = "block";
-                
+                document.getElementById("removePlaylistButton").style.display = "block";
                 console.log("im on list songs");
                 var selectBox = document.getElementById("select-box");
                 const mylist = lists.split("]")

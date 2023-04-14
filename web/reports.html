@@ -3,8 +3,9 @@
 <head>
     <link rel="stylesheet" type="text/css" href="/css/reports.css"/>
     <link rel="stylesheet" type="text/css" href="/css/navbar.css"/>
-	<title>Report Generation Page</title>
+	<title id = "mytitle">Report Generation Page</title>
 </head>
+
 <body>
 
     <div class="main">
@@ -12,7 +13,7 @@
             <li><a  href="/"> Home</a> </a></li>
             <li><a  href="search.html"> Search </a> </a></li>
             <li><a  href="upload_song"> Upload a Song </a> </a></li>
-            <li><a  href="reports.html"> Generate a Report </a> </a></li>
+            <li><a  href="reports"> Generate a Report </a> </a></li>
             <li><a  href="createplay.html"> Create Playlists  </a> </a></li>
             <li class="dropdown">
                 <a href="myaccount.html"> My Account &#9660;</a>
@@ -29,42 +30,128 @@
     <br>
 	<div class="container">
 		<h1>Generate a Report</h1>
-		<form>
-            <label for="song_name">Song name:</label>
-            <input type="text" id="song_name" name="song_name" minlength="1">
-            <label for="artist_name">Artist Name:</label>
-            <input type="text" id="artist_name" name="artist_name" minlength="1">
-            <label for="uploaded_by">Uploaded By:</label>
-            <input type="text" id="uploaded_by" name="uploaded_by" minlength="1">
-            <label for="genre">Choose a genre:</label>
-            <select name="genre" id="genre">
-            <option disabled selected value> -- select an option -- </option>
-            <option value="Pop">Pop</option>
-            <option value="Rock">Rock</option>
-            <option value="Hip-hop">Hip-Hop</option>
-            <option value="Country">Country</option>
-            <option value="Classical">Classical</option>
-            <option value="Jazz">Jazz</option>
-            </select>
-            <br>
-            <label for="choseDates">Uploaded from:</label>
-            <input type="date" id="date">
-            <label for="choseDates">Uploaded to:</label>
-            <input type="date" id="date">
-            <br>
-            <label for="sort_by">Sort by:</label>
-            <select name="sort_by" id="sort_by">
-            <option disabled selected value> -- select an option -- </option>
-            <option value="Most plays">Most plays</option>
-            <option value="Upload date">Upload date</option>
-            <option value="Genre">Genre</option>
-            </select>
+		<form method="POST">
 
+            <input id="reportMode" value="" name="reportMode" hidden>
+            <label>Report Mode:</label>
+            <select name="reportModeSelect" id="reportModeSelect" onchange="reportChange(value);">
+                <option disabled selected value> -- select an option -- </option>
+                <option value='uploadbydate'>Uploads by Date</option>
+                <option value='usercreationbydate'>User Creation by Date</option>
+                <option value='playlistcreationbydate'>PLaylist by Plays</option>
+            </select>
+            <br>
+            <br>
+            <div style="display: none;" id="uploadbydate">
+                <label id="uploadedbylabel" for="uploaded_by">Uploaded By:</label>
+                <input id="userSelect" value="" name="userSelect" hidden>
+                <select name="uploadedBY" id="users" onchange="document.getElementById('userSelect').value=value">
+                    <option disabled selected value> -- select an option -- </option>
+                    {{range $element := .Users}}
+                    <option value='{{$element.UserID}}'>{{$element.Username}}</option>
+
+                    {{end}}
+                </select>
+                <br>
+                <br>
+                <input name = "checkboxvalue" id="checkboxvalue" value="Notchecked" hidden>
+                <input style="float: left;" type="checkbox" id="checkbox" onclick="mychangefunc()" >
+                <div style="margin-left: 25px;">
+                ALL USERS
+                </div>
+                <br>
+             
+            </div>
+
+            <div style="display: none;" id="dateSelections">
+                <div id = "datestuff">
+                    <label id="upfrom" for="choseDates">Uploaded from:</label>
+                    <input type="date" id="datefrom" name="datefrom">
+                    <label id="upTo" for="choseDates">Uploaded to:</label>
+                    <input type="date" id="dateTo" name="dateTo">
+                    <br>
+                   
+                </div>
+                
+            </div>
+            <div style="display: none;" id="dateselectionsAllTime">
+                <input name = "checkboxvaluealltime" id="checkboxvaluealltime" value="Notchecked" hidden>
+                <input style="float: left;" type="checkbox" id="checkboxalltime" onclick="mychangefuncalltime()" >
+                <div style="margin-left: 25px;">
+                    All Time
+                </div>
+            </div>
             <button type="submit">Generate Report</button>
 
 
 			
 		</form>
+
 	</div>
+    <script>
+          console.log("shfskjdhfskjlhflkjsahfkjshfkjlasfljkhsadflkjahdf")
+        document.getElementById("reportModeSelect").addEventListener("change", reportChange, false)
+        
+        function reportChange(myvalue) { //drop down selection that selects the report type
+            
+            if(myvalue == 'uploadbydate')
+            {
+                document.getElementById('mytitle').innerHTML = "Upload By Date";
+                document.getElementById('uploadbydate').style.display = 'block';
+                document.getElementById('dateSelections').style.display = 'block';
+                document.getElementById('dateselectionsAllTime').style.display = 'block';
+                document.getElementById('reportMode').value=myvalue;
+
+            } else if(myvalue == 'usercreationbydate') {
+                document.getElementById('uploadbydate').style.display = 'none';
+                document.getElementById('dateSelections').style.display = 'block';
+                document.getElementById('dateselectionsAllTime').style.display = 'block';
+                document.getElementById('reportMode').value=myvalue;
+
+            } else if(myvalue == 'playlistcreationbydate') {
+                document.getElementById('uploadbydate').style.display = 'none';
+                document.getElementById('dateSelections').style.display = 'block';
+                document.getElementById('dateselectionsAllTime').style.display = 'block';
+                document.getElementById('reportMode').value=myvalue;
+
+            }
+            
+            
+        }
+        function mychangefunc() //selection (FOR USERS REPORT ONLY) that specifies whether all users or specific user
+        {
+          
+            if(document.getElementById("checkbox").checked == true )
+            {
+                document.getElementById("users").style.display = "none";
+                document.getElementById("uploadedbylabel").style.display = "none";
+
+                
+                document.getElementById("checkboxvalue").value = "isChecked"
+
+            } else {
+
+                document.getElementById("users").style.display = "block"
+                document.getElementById("uploadedbylabel").style.display = "block";
+
+                document.getElementById("checkboxvalue").value = "Notchecked"
+            }
+        }   
+
+        function mychangefuncalltime() { //determins whether use range time or all time
+            if(document.getElementById('checkboxalltime').checked == true)
+            {
+                document.getElementById("datestuff").style.display = "none";
+                document.getElementById('checkboxvaluealltime').value = "isChecked";
+
+            } else {
+                document.getElementById("datestuff").style.display = "block";
+
+                document.getElementById('checkboxvaluealltime').value = "Notchecked";
+            }
+        }
+       
+    </script>
 </body>
+
 </html>

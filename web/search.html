@@ -16,7 +16,7 @@
                 <li><a  href="/"> Home</a> </a></li>
                 <li><a  href="search.html"> Search </a> </a></li>
                 <li><a  href="upload_song"> Upload a Song </a> </a></li>
-                <li><a  href="reports.html"> Generate a Report </a> </a></li>
+                <li><a  href="reports"> Generate a Report </a> </a></li>
                 <li><a  href="createplay.html"> Create Playlists  </a> </a></li>
                 <li class="dropdown">
                     <a href="myaccount.html"> My Account &#9660;</a>
@@ -64,11 +64,12 @@
       
         <input name="songID" id="songID" value = "" hidden></input>
         <select id="select-box" name = "test" size=10 onchange="console.log('BIG CHANGE');document.getElementById('songID').value = value;this.form.submit()">
-          {{range $element := .MySongChild}} 
-            <option value="{{$element.SongID}}]{{$element.SongPath}}]{{$element.Song}}" > {{$element.Song}} </option>
-            <br>
- 
-          {{end}}
+              {{range $element := .MySongChild}} 
+                <option value="{{$element.SongID}}]{{$element.SongPath}}]{{$element.Song}}" > {{$element.Song}} </option>
+                <br>
+    
+              {{end}}
+      
       </select>
     </form>
       </div>

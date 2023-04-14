@@ -94,17 +94,29 @@
 </head>
 <body style = "background-color: black;">
     <div class="container">
-		<div class="sidebar">
-			<h2>My Account</h2>
-			<div class="menu-item" id="overview" href="/AO.html">Account Overview</div>
-			<div class="menu-item" id="edit" href="/editP.html" >Edit Profile</div>
-			<div class="menu-item" id="changepass">Change Password</div>
-			<div class="menu-item" id="lout">Logout</div>
-		</div>
+      <div class="sidebar">
+        <h2>My Account</h2>
+  
+        <a href="myaccount.html">
+          <div class="menu-item" id="overview">Account Overview</div>
+        </a>
+  
+        <a href="/editP.html">
+          <div class="menu-item" id="edit" >Edit Profile</div>
+        </a>
+  
+        <a href="/changepass.html">
+          <div class="menu-item" id="changepass">Change Password</div>
+        </a>
+  
+        <a href="/logout">
+        <div class="menu-item" id="lout">Logout</div>
+      </a>
+      </div>
 		<div class="main-content" id="main-content">
 			<h1> Change Password</h1>
 			<div class="con">
-        <form action="update_profile.php" method="post">
+        <form method="POST">
           <table>
             <tr>
               <td>Enter New Password</td>
