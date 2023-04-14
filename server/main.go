@@ -101,6 +101,8 @@ func myDB() *sql.DB {
 	if err != nil {
 		panic(err)
 	}
+
+	// defer db.Close()
 	return db
 }
 func (mydb *dbstruct) login(w http.ResponseWriter, r *http.Request) {
@@ -149,6 +151,9 @@ func (mydb *dbstruct) login(w http.ResponseWriter, r *http.Request) {
 			queryEmail, err := mydb.mydb.Query("SELECT email FROM USER WHERE username=?", string(username))
 			myqueryDate := fmt.Sprintf("SELECT date_registered FROM USER WHERE username=\"%s\"", username)
 			queryDate, err := mydb.mydb.Query(myqueryDate)
+			defer queryDate.Close()
+			defer queryEmail.Close()
+			defer queryuserID.Close()
 			if err != nil {
 				fmt.Println(err, "error here")
 			} else {
@@ -207,6 +212,7 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(songs)
 		}
 		defer songs.Close()
+		defer songPath.Close()
 		var t Songs
 
 		var songName string
@@ -242,12 +248,13 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 		songatt := strings.Split(SELECTEDSONGFROMFORM, "]")
 		conv, err := strconv.Atoi(songatt[0])
 		getListens, err := mydb.mydb.Query("SELECT listens from SONG WHERE songID = ?", conv)
-
+		defer getListens.Close()
 		getListens.Next()
 		var listenNum int
 		getListens.Scan(&listenNum)
 
 		myupdate, err := mydb.mydb.Prepare("UPDATE SONG SET listens = ? WHERE songID = ?")
+		defer myupdate.Close()
 		myupdateEXE, err := myupdate.Exec(listenNum+1, conv)
 		fmt.Println("my execution of this: ", myupdateEXE)
 
@@ -259,6 +266,7 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 		var title string
 		var path string
 		myquery, err := mydb.mydb.Query("SELECT title,mp3_file from SONG WHERE songID=?", songatt[0])
+		defer myquery.Close()
 		myquery.Next()
 		myquery.Scan(&title, &path)
 		t.SelectedSong = title
@@ -283,6 +291,7 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 	if searchType == "Song Name" {
 		fmt.Println("i'm here now on song name")
 		songsID, err2 := mydb.mydb.Query("SELECT songID FROM song")
+
 		if err2 != nil {
 			fmt.Println(songsID)
 		}
@@ -300,6 +309,7 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 			songDetails, err2 := mydb.mydb.Query("SELECT title, mp3_file FROM song WHERE songID=?", songID)
 			var songTitle string
 			var songPathstr string
+			defer songDetails.Close()
 			if err2 != nil {
 				fmt.Println(err2)
 			}
@@ -345,6 +355,7 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 		for songsID.Next() {
 			songsID.Scan(&songID)
 			songDetails, err2 := mydb.mydb.Query("SELECT title, mp3_file FROM song WHERE songID=?", songID)
+			defer songDetails.Close()
 			var songTitle string
 			var songPathstr string
 			if err2 != nil {
@@ -387,6 +398,7 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 			fmt.Println(songs)
 		}
 		defer songs.Close()
+		defer songPath.Close()
 		var t Songs
 
 		var songName string
@@ -434,6 +446,7 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 			for songsID.Next() {
 				songsID.Scan(&songID)
 				songDetails, err2 := mydb.mydb.Query("SELECT title, mp3_file FROM song WHERE songID=?", songID)
+				defer songDetails.Close()
 				var songTitle string
 				var songPathstr string
 				if err2 != nil {
@@ -477,6 +490,7 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 			for songsID.Next() {
 				songsID.Scan(&songID)
 				songDetails, err2 := mydb.mydb.Query("SELECT title, mp3_file FROM song WHERE songID=?", songID)
+				defer songDetails.Close()
 				var songTitle string
 				var songPathstr string
 				if err2 != nil {
@@ -504,12 +518,14 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 		fmt.Println("this is my message from options: ", r.FormValue("songID"))
 		songidconv, err := strconv.Atoi(r.FormValue("songID"))
 		myquery, err := mydb.mydb.Query("SELECT title, mp3_file FROM SONG WHERE songID=?", songidconv)
+		defer myquery.Close()
 		myquery.Next()
 		var title string
 		var path string
 		myquery.Scan(&title, &path)
 		fmt.Println("query for songID after click on results ", title, path)
 		insert, err := mydb.mydb.Prepare("INSERT INTO `playlist_song` (`playlistID`, `song`, `songpath`) VALUES (?, ?, ?);")
+		defer insert.Close()
 		plvalue, err := strconv.Atoi(plIDS.PlaylistID)
 		fmt.Println("my playlist ID ahahhahah ", plvalue)
 		res, err := insert.Exec(plvalue, title, path)
@@ -597,7 +613,7 @@ func (mydb *dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 	} else {
 		fmt.Println("no error on search artist")
 	}
-
+	defer searchArtist.Close()
 	for searchArtist.Next() {
 		var t Artist
 		searchArtist.Scan(&t.artist)
@@ -608,6 +624,7 @@ func (mydb *dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("after search artist next")
 	if !isFound {
 		insertARTIST, err2 := mydb.mydb.Prepare("INSERT INTO `artist` (`artist_name`, `genre`, `average_rating`) VALUES (?, ?, ?);")
+		defer insertARTIST.Close()
 		fmt.Println("after prep")
 		res2, err2 := insertARTIST.Exec(string(artist_name), string(r.FormValue("genre")), 0)
 		fmt.Println("after execute")
@@ -623,13 +640,14 @@ func (mydb *dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 	artistIDQuery := fmt.Sprintf("SELECT ArtistID FROM ARTIST WHERE artist_name=\"%s\"", artistname)
 	myartistID, err2 := mydb.mydb.Query(artistIDQuery)
 	fmt.Println("after query artistid")
-
+	defer myartistID.Close()
 	myartistID.Next()
 	artistidNUM := 0
 	myartistID.Scan(&artistidNUM)
 
 	fmt.Println("after scan")
 	insert, err2 := mydb.mydb.Prepare("INSERT INTO `song` (`release_date`, `title`, `time`, `average_rating`, `mp3_file`, `UserID`, `listens`, `artist_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);")
+	defer insert.Close()
 	fmt.Println("after prep insert song")
 
 	if err2 != nil {
@@ -666,7 +684,7 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 		if err2 != nil {
 			fmt.Println(err2)
 		}
-
+		defer myquery.Close()
 		var playlistname string
 		var playlistid int
 		var t playlist
@@ -678,6 +696,7 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 			if err2 != nil {
 				fmt.Println("test")
 			}
+			defer myquery.Close()
 			var songname string
 			var songpath string
 			songnameList := ""
@@ -693,7 +712,7 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 			t.Plchild = append(t.Plchild, temp)
 		}
 		top5query, err := mydb.mydb.Query("SELECT song_id, listensTOP FROM TOP_5_SONGS ORDER BY listensTOP DESC")
-
+		defer top5query.Close()
 		var id int
 		var listens string
 
@@ -703,6 +722,7 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				fmt.Println(err)
 			}
+			defer myquery.Close()
 			var title string
 			myquery.Next()
 			myquery.Scan(&title)
@@ -733,6 +753,7 @@ func (mydb *dbstruct) createPlaylist(w http.ResponseWriter, r *http.Request) {
 	playlistName := r.FormValue("playlistTitle")
 
 	myquery, err := mydb.mydb.Prepare("INSERT INTO `playlist` (`date_created`, `time`, `playlist_name`, `UserID`) VALUES (?, ?, ?, ?);")
+	defer myquery.Close()
 	res, err := myquery.Exec(time.Now(), 0, string(playlistName), myuserID)
 	if err != nil {
 		fmt.Println(err)
@@ -747,6 +768,14 @@ func (mydb *dbstruct) logout(w http.ResponseWriter, r *http.Request) {
 	delete(session.Values, "userID")
 	session.Save(r, w)
 	http.Redirect(w, r, "/home.html", http.StatusSeeOther)
+
+}
+func (mydb *dbstruct) reports(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		fmt.Println("here")
+		tpl.ExecuteTemplate(w, "reports.html", nil)
+		return
+	}
 
 }
 func (mydb *dbstruct) addAccountSignUp(w http.ResponseWriter, r *http.Request) {
@@ -770,7 +799,7 @@ func (mydb *dbstruct) addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query, err := myDB().Query("SELECT email FROM USER")
+	query, err := mydb.mydb.Query("SELECT email FROM USER")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -785,7 +814,7 @@ func (mydb *dbstruct) addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	queryUName, err := myDB().Query("SELECT username FROM USER")
+	queryUName, err := mydb.mydb.Query("SELECT username FROM USER")
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -800,7 +829,8 @@ func (mydb *dbstruct) addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	insert, err2 := myDB().Prepare("INSERT INTO `user` (`username`, `password`, `email`, `date_registered`, `name_of_user`, `access_level`) VALUES (?, ?, ?, ?, ?, '1');")
+	insert, err2 := mydb.mydb.Prepare("INSERT INTO `user` (`username`, `password`, `email`, `date_registered`, `name_of_user`, `access_level`) VALUES (?, ?, ?, ?, ?, '1');")
+	defer insert.Close()
 	//(`username`, `password`, `date_registered`, `name_of_user`, `access_level`)
 	if err2 != nil {
 		fmt.Println("error on prep")
@@ -889,9 +919,7 @@ func main() {
 	http.HandleFunc("/editP.html", Auth(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/editP.html")
 	}))
-	http.HandleFunc("/reports.html", Auth(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/reports.html")
-	}))
+	http.HandleFunc("/reports.html", Auth(mydb.reports))
 	http.HandleFunc("/changepass.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/changepass.html")
 	})
