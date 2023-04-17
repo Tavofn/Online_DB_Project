@@ -45,14 +45,14 @@ td, th {
     <th>Date</th>
     <th>User ID</th>
     <th>Playlist Name</th>
-    <th>Full Name</th>
+    <th>Playlist ID</th>
 
     {{range $element := .}}
     <tr>
         <th>{{$element.Date_regist}}</th>
         <th>{{$element.Userid}}</th>
         <th>{{$element.Playlist_name}}</th>
-        <th>{{$element.Name_user}}</th>
+        <th>{{$element.Playlist_id}}</th>
     </tr>
     {{end}}
 

@@ -44,6 +44,7 @@ type UserReport struct {
 	Date_regist   string
 	Name_user     string
 	Playlist_name string
+	Playlist_id   string
 }
 type Songschild struct {
 	SongID       int
@@ -1093,19 +1094,20 @@ func (mydb *dbstruct) reports(w http.ResponseWriter, r *http.Request) {
 
 		for myquery.Next() {
 			myquery.Scan(&playlistid, &date, &playlistname, &userID)
+			plID := strconv.Itoa(playlistid)
 			timeOG, err := time.Parse("2006-01-02 15:04:05", date)
 			if err != nil {
 				fmt.Println(err)
 			}
 			if dateCheckbox == "Notchecked" {
 				if timeOG.After(timefrom) && timeOG.Before(timeto) {
-					mydb.UserReport = append(mydb.UserReport, UserReport{Userid: userID, Date_regist: date, Playlist_name: playlistname})
+					mydb.UserReport = append(mydb.UserReport, UserReport{Playlist_id: plID, Userid: userID, Date_regist: date, Playlist_name: playlistname})
 				}
 			} else {
-				mydb.UserReport = append(mydb.UserReport, UserReport{Userid: userID, Date_regist: date, Playlist_name: playlistname})
+				mydb.UserReport = append(mydb.UserReport, UserReport{Playlist_id: plID, Userid: userID, Date_regist: date, Playlist_name: playlistname})
 			}
 		}
-		http.Redirect(w, r, "/reportsResultsUserCreate.html", http.StatusSeeOther)
+		http.Redirect(w, r, "/reportsResultsPlaylistCreate.html", http.StatusSeeOther)
 	}
 
 }
