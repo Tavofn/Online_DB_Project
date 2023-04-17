@@ -37,12 +37,13 @@ type User struct {
 	name_user   string
 }
 type UserReport struct {
-	Userid      int
-	Username    string
-	Password    string
-	Email       string
-	Date_regist string
-	Name_user   string
+	Userid        int
+	Username      string
+	Password      string
+	Email         string
+	Date_regist   string
+	Name_user     string
+	Playlist_name string
 }
 type Songschild struct {
 	SongID       int
@@ -141,8 +142,8 @@ func (mydb *dbstruct) login(w http.ResponseWriter, r *http.Request) {
 
 	// fmt.Println("out of get")
 	r.ParseForm()
-	username := r.FormValue("username")
-	password := r.FormValue("password")
+	username := strings.TrimSpace(r.FormValue("username"))
+	password := strings.TrimSpace(r.FormValue("password"))
 
 	query, err := mydb.mydb.Query("SELECT username,password FROM USER")
 	// fmt.Println("out of get on query")
@@ -229,24 +230,37 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 		if err2 != nil {
 			fmt.Println(songs)
 		}
-		songPath, err2 := mydb.mydb.Query("SELECT mp3_file FROM song ")
+		artist, err2 := mydb.mydb.Query("SELECT artist_name FROM artist")
 		if err2 != nil {
-			fmt.Println(songs)
+			fmt.Println(artist)
 		}
 		defer songs.Close()
-		defer songPath.Close()
+		defer artist.Close()
 		var t Songs
 
 		var songName string
-		for songs.Next() && songPath.Next() {
-			songs.Scan(&songName)
-			temp := Songschild{Song: songName[0:strings.Index(songName, "-")]}
-			t.MySongChildData = append(t.MySongChildData, temp)
 
-			temp2 := Songschild{Song: songName[strings.Index(songName, "-")+1:]}
+		for songs.Next() {
+			songs.Scan(&songName)
+			temp2 := Songschild{Song: songName[strings.Index(songName, "-")+1:] + ":Song"}
 			t.MySongChildData = append(t.MySongChildData, temp2)
 
 		}
+		var artistname string
+		for artist.Next() {
+			artist.Scan(&artistname)
+			temp := Songschild{Song: artistname + ":Artist"}
+			t.MySongChildData = append(t.MySongChildData, temp)
+
+		}
+		x := 0
+		genrelist := [6]string{"Hip-Hop", "Pop", "Rock", "Country", "Classical", "Jazz"}
+		for x < 6 {
+			temp := Songschild{Song: genrelist[x] + ":Genre"}
+			t.MySongChildData = append(t.MySongChildData, temp)
+			x++
+		}
+
 		// newlist := []string{}
 
 		if ok {
@@ -264,14 +278,47 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 	}
 	r.ParseForm()
 
+	songs, err2 := mydb.mydb.Query("SELECT title FROM song")
+	if err2 != nil {
+		fmt.Println(songs)
+	}
+	artist, err2 := mydb.mydb.Query("SELECT artist_name FROM artist")
+	if err2 != nil {
+		fmt.Println(artist)
+	}
+	defer songs.Close()
+	defer artist.Close()
+	var t Songs
+
+	var songName string
+
+	for songs.Next() {
+		songs.Scan(&songName)
+		temp2 := Songschild{Song: songName[strings.Index(songName, "-")+1:] + ":Song"}
+		t.MySongChildData = append(t.MySongChildData, temp2)
+
+	}
+	var artistname string
+	for artist.Next() {
+		artist.Scan(&artistname)
+		temp := Songschild{Song: artistname + ":Artist"}
+		t.MySongChildData = append(t.MySongChildData, temp)
+
+	}
+	x := 0
+	genrelist := [6]string{"Hip-Hop", "Pop", "Rock", "Country", "Classical", "Jazz"}
+	for x < 6 {
+		temp := Songschild{Song: genrelist[x] + ":Genre"}
+		t.MySongChildData = append(t.MySongChildData, temp)
+		x++
+	}
+
 	SELECTEDSONGFROMFORM := r.FormValue("songID")
 	fmt.Println("IM HERE AHAHAH IM HERE ON POST FOR SONG ID: ", r.FormValue("songID"))
 	if r.FormValue("songID") != "" {
 		songatt := strings.Split(SELECTEDSONGFROMFORM, "]")
 		conv, err := strconv.Atoi(songatt[0])
-		getListens, err := mydb.mydb.Query("SELECT listens from SONG WHERE songID = ?", conv)
-		defer getListens.Close()
-		getListens.Next()
+		getListens := mydb.mydb.QueryRow("SELECT listens from SONG WHERE songID = ?", conv)
 		var listenNum int
 		getListens.Scan(&listenNum)
 
@@ -284,12 +331,9 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 		}
 
-		var t Songs
 		var title string
 		var path string
-		myquery, err := mydb.mydb.Query("SELECT title,mp3_file from SONG WHERE songID=?", songatt[0])
-		defer myquery.Close()
-		myquery.Next()
+		myquery := mydb.mydb.QueryRow("SELECT title,mp3_file from SONG WHERE songID=?", songatt[0])
 		myquery.Scan(&title, &path)
 		t.SelectedSong = title
 		t.SelectedSongPath = path
@@ -304,12 +348,16 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
 	//THIS WILL SHOW YOU THE SEARCH RESULTS FROM INPUT
 	fmt.Println("here")
 	searchType := r.FormValue("selectedOptionNAME")
 	search := r.FormValue("mysearch")
 	fmt.Println(string(searchType))
 	fmt.Println("before")
+	if strings.Contains(search, ":") {
+		search = search[0:strings.Index(search, ":")]
+	}
 	if searchType == "Song Name" {
 		fmt.Println("i'm here now on song name")
 		songsID, err2 := mydb.mydb.Query("SELECT songID FROM song")
@@ -322,30 +370,27 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 		// if err2 != nil {
 		// 	fmt.Println(songs)
 		// }
-		var t Songs
 
 		var songID int
 
 		for songsID.Next() {
 			songsID.Scan(&songID)
-			songDetails, err2 := mydb.mydb.Query("SELECT title, mp3_file FROM song WHERE songID=?", songID)
+			songDetails := mydb.mydb.QueryRow("SELECT title, mp3_file FROM song WHERE songID=?", songID)
 			var songTitle string
 			var songPathstr string
-			defer songDetails.Close()
 			if err2 != nil {
 				fmt.Println(err2)
 			}
-			for songDetails.Next() {
 
-				songDetails.Scan(&songTitle, &songPathstr)
-				if search == songTitle[strings.Index(songTitle, "-")+1:] {
-					fmt.Println("FOUND lsk;dhflkjsdhflkjsd")
-					temp := Songschild{SongID: songID, Song: songTitle, SongPath: songPathstr}
-					t.MySongChild = append(t.MySongChild, temp)
-					fmt.Println(songPathstr)
-				}
+			songDetails.Scan(&songTitle, &songPathstr)
 
+			if search == songTitle[strings.Index(songTitle, "-")+1:] {
+				fmt.Println("FOUND lsk;dhflkjsdhflkjsd")
+				temp := Songschild{SongID: songID, Song: songTitle, SongPath: songPathstr}
+				t.MySongChild = append(t.MySongChild, temp)
+				fmt.Println(songPathstr)
 			}
+
 		}
 		if ok {
 			if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
@@ -358,81 +403,67 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else if searchType == "Genre" {
-		// fmt.Println("i'm here now on song name")
-		// genre, err2 := mydb.mydb.Query("SELECT genre FROM song")
+		fmt.Println("i'm here now on genre name")
+		songs, err2 := mydb.mydb.Query("SELECT title, mp3_file FROM song WHERE genre=?", search)
 
-		// if err2 != nil {
-		// 	fmt.Println(genre)
-		// }
-		// defer genre.Close()
-		// // songPath, err2 := mydb.mydb.mydb.Query("SELECT mp3_file FROM song ")
-		// // if err2 != nil {
-		// // 	fmt.Println(songs)
-		// // }
-		// var t Songs
-
-		// var genreType string
-
-		// for genre.Next() {
-		// 	genre.Scan(&genreType)
-		// 	songDetails, err2 := mydb.mydb.Query("SELECT title, mp3_file FROM song WHERE genre=?", genreType)
-		// 	var songTitle string
-		// 	var songPathstr string
-		// 	defer songDetails.Close()
-		// 	if err2 != nil {
-		// 		fmt.Println(err2)
-		// 	}
-		// 	for songDetails.Next() {
-
-		// 		songDetails.Scan(&songTitle, &songPathstr)
-		// 		temp := Songschild{Genre: genreType, Song: songTitle, SongPath: songPathstr}
-		// 		t.MySongChild = append(t.MySongChild, temp)
-		// 		fmt.Println(songPathstr)
-
-		// 	}
-		// }
-		// if ok {
-		// 	if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
-		// 		fmt.Println(err)
-		// 	}
-		// } else {
-		// 	if err := tpl.ExecuteTemplate(w, "search_nologin.html", t); err != nil {
-		// 		fmt.Println(err)
-		// 	}
-		// }
-	} else if searchType == "Artist" {
-		fmt.Println("i'm here now")
-		songsID, err2 := mydb.mydb.Query("SELECT songID FROM song")
 		if err2 != nil {
-			fmt.Println(songsID)
+			fmt.Println(songs)
 		}
-		defer songsID.Close()
+		defer songs.Close()
 		// songPath, err2 := mydb.mydb.mydb.Query("SELECT mp3_file FROM song ")
 		// if err2 != nil {
 		// 	fmt.Println(songs)
 		// }
-		var t Songs
 
-		var songID int
+		var title string
+		var mp3file string
+		for songs.Next() {
+			songs.Scan(&title, &mp3file)
+			temp := Songschild{Genre: search, Song: title, SongPath: mp3file}
+			t.MySongChild = append(t.MySongChild, temp)
+		}
 
-		for songsID.Next() {
-			songsID.Scan(&songID)
-			songDetails, err2 := mydb.mydb.Query("SELECT title, mp3_file FROM song WHERE songID=?", songID)
-			defer songDetails.Close()
+		if ok {
+			if err := tpl.ExecuteTemplate(w, "search.html", t); err != nil {
+				fmt.Println(err)
+			}
+		} else {
+			if err := tpl.ExecuteTemplate(w, "search_nologin.html", t); err != nil {
+				fmt.Println(err)
+			}
+		}
+
+	} else if searchType == "Artist" {
+		fmt.Println("i'm here now")
+		artistID, err2 := mydb.mydb.Query("SELECT ArtistID FROM artist")
+		if err2 != nil {
+			fmt.Println(artistID)
+		}
+		defer artistID.Close()
+		// songPath, err2 := mydb.mydb.mydb.Query("SELECT mp3_file FROM song ")
+		// if err2 != nil {
+		// 	fmt.Println(songs)
+		// }
+
+		var artistIDVal int
+
+		for artistID.Next() {
+			artistID.Scan(&artistIDVal)
+			songDetails, err2 := mydb.mydb.Query("SELECT songID,title, mp3_file FROM song WHERE artist_id=?", artistIDVal)
+
 			var songTitle string
 			var songPathstr string
+			var songID int
 			if err2 != nil {
 				fmt.Println(err2)
 			}
 			for songDetails.Next() {
-
-				songDetails.Scan(&songTitle, &songPathstr)
+				songDetails.Scan(&songID, &songTitle, &songPathstr)
 				if search == songTitle[0:strings.Index(songTitle, "-")] {
 					temp := Songschild{SongID: songID, Song: songTitle, SongPath: songPathstr}
 					t.MySongChild = append(t.MySongChild, temp)
 					fmt.Println(songPathstr)
 				}
-
 			}
 
 		}
@@ -456,23 +487,35 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 		if err2 != nil {
 			fmt.Println(songs)
 		}
-		songPath, err2 := mydb.mydb.Query("SELECT mp3_file FROM song ")
+		artist, err2 := mydb.mydb.Query("SELECT artist_name FROM artist")
 		if err2 != nil {
-			fmt.Println(songs)
+			fmt.Println(artist)
 		}
 		defer songs.Close()
-		defer songPath.Close()
+		defer artist.Close()
 		var t Songs
 
 		var songName string
-		for songs.Next() && songPath.Next() {
-			songs.Scan(&songName)
-			temp := Songschild{Song: songName[0:strings.Index(songName, "-")]}
-			t.MySongChildData = append(t.MySongChildData, temp)
 
-			temp2 := Songschild{Song: songName[strings.Index(songName, "-")+1:]}
+		for songs.Next() {
+			songs.Scan(&songName)
+			temp2 := Songschild{Song: songName[strings.Index(songName, "-")+1:] + ":Song"}
 			t.MySongChildData = append(t.MySongChildData, temp2)
 
+		}
+		var artistname string
+		for artist.Next() {
+			artist.Scan(&artistname)
+			temp := Songschild{Song: artistname + ":Artist"}
+			t.MySongChildData = append(t.MySongChildData, temp)
+
+		}
+		x := 0
+		genrelist := [6]string{"Hip-Hop", "Pop", "Rock", "Country", "Classical", "Jazz"}
+		for x < 6 {
+			temp := Songschild{Song: genrelist[x] + ":Genre"}
+			t.MySongChildData = append(t.MySongChildData, temp)
+			x++
 		}
 		// newlist := []string{}
 		if err := tpl.ExecuteTemplate(w, "searchPlaylist.html", t); err != nil {
@@ -483,9 +526,47 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 	}
 	r.ParseForm()
 
+	songs, err2 := mydb.mydb.Query("SELECT title FROM song")
+	if err2 != nil {
+		fmt.Println(songs)
+	}
+	artist, err2 := mydb.mydb.Query("SELECT artist_name FROM artist")
+	if err2 != nil {
+		fmt.Println(artist)
+	}
+	defer songs.Close()
+	defer artist.Close()
+	var t Songs
+
+	var songName string
+
+	for songs.Next() {
+		songs.Scan(&songName)
+		temp2 := Songschild{Song: songName[strings.Index(songName, "-")+1:] + ":Song"}
+		t.MySongChildData = append(t.MySongChildData, temp2)
+
+	}
+	var artistname string
+	for artist.Next() {
+		artist.Scan(&artistname)
+		temp := Songschild{Song: artistname + ":Artist"}
+		t.MySongChildData = append(t.MySongChildData, temp)
+
+	}
+	x := 0
+	genrelist := [6]string{"Hip-Hop", "Pop", "Rock", "Country", "Classical", "Jazz"}
+	for x < 6 {
+		temp := Songschild{Song: genrelist[x] + ":Genre"}
+		t.MySongChildData = append(t.MySongChildData, temp)
+		x++
+	}
+
 	fmt.Println("here")
 	searchType := r.FormValue("selectedOptionNAME")
 	search := r.FormValue("mysearch")
+	if strings.Contains(search, ":") {
+		search = search[0:strings.Index(search, ":")]
+	}
 	fmt.Println(string(searchType))
 	fmt.Println("before")
 	fmt.Println("songID BEFORE conditional ", r.FormValue("songID"))
@@ -502,30 +583,26 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 			// if err2 != nil {
 			// 	fmt.Println(songs)
 			// }
-			var t Songs
 
 			var songID int
 
 			for songsID.Next() {
 				songsID.Scan(&songID)
-				songDetails, err2 := mydb.mydb.Query("SELECT title, mp3_file FROM song WHERE songID=?", songID)
-				defer songDetails.Close()
+				songDetails := mydb.mydb.QueryRow("SELECT title, mp3_file FROM song WHERE songID=?", songID)
+
 				var songTitle string
 				var songPathstr string
 				if err2 != nil {
 					fmt.Println(err2)
 				}
-				for songDetails.Next() {
 
-					songDetails.Scan(&songTitle, &songPathstr)
-					fmt.Println("song title from query ", songTitle)
-					fmt.Println("song search from input ", search)
-					if search == songTitle[strings.Index(songTitle, "-")+1:] {
-						temp := Songschild{SongID: songID, Song: songTitle, SongPath: songPathstr}
-						t.MySongChild = append(t.MySongChild, temp)
-						fmt.Println(songPathstr)
-					}
-
+				songDetails.Scan(&songTitle, &songPathstr)
+				fmt.Println("song title from query ", songTitle)
+				fmt.Println("song search from input ", search)
+				if search == songTitle[strings.Index(songTitle, "-")+1:] {
+					temp := Songschild{SongID: songID, Song: songTitle, SongPath: songPathstr}
+					t.MySongChild = append(t.MySongChild, temp)
+					fmt.Println(songPathstr)
 				}
 
 			}
@@ -533,41 +610,61 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 				fmt.Println(err)
 			}
 		} else if searchType == "Genre" {
+			fmt.Println("i'm here now on genre name")
+			songs, err2 := mydb.mydb.Query("SELECT title, mp3_file FROM song WHERE genre=?", search)
 
-		} else if searchType == "Artist" {
-
-			fmt.Println("i'm here now")
-			songsID, err2 := mydb.mydb.Query("SELECT songID FROM song")
 			if err2 != nil {
-				fmt.Println(songsID)
+				fmt.Println(songs)
 			}
-			defer songsID.Close()
+			defer songs.Close()
 			// songPath, err2 := mydb.mydb.mydb.Query("SELECT mp3_file FROM song ")
 			// if err2 != nil {
 			// 	fmt.Println(songs)
 			// }
-			var t Songs
 
-			var songID int
+			var title string
+			var mp3file string
+			for songs.Next() {
+				songs.Scan(&title, &mp3file)
+				temp := Songschild{Genre: search, Song: title, SongPath: mp3file}
+				t.MySongChild = append(t.MySongChild, temp)
+			}
 
-			for songsID.Next() {
-				songsID.Scan(&songID)
-				songDetails, err2 := mydb.mydb.Query("SELECT title, mp3_file FROM song WHERE songID=?", songID)
-				defer songDetails.Close()
+			if err := tpl.ExecuteTemplate(w, "searchPlaylist.html", t); err != nil {
+				fmt.Println(err)
+			}
+		} else if searchType == "Artist" {
+
+			fmt.Println("i'm here now")
+			artistID, err2 := mydb.mydb.Query("SELECT ArtistID FROM artist")
+			if err2 != nil {
+				fmt.Println(artistID)
+			}
+			defer artistID.Close()
+			// songPath, err2 := mydb.mydb.mydb.Query("SELECT mp3_file FROM song ")
+			// if err2 != nil {
+			// 	fmt.Println(songs)
+			// }
+
+			var artistIDVal int
+
+			for artistID.Next() {
+				artistID.Scan(&artistIDVal)
+				songDetails, err2 := mydb.mydb.Query("SELECT songID,title, mp3_file FROM song WHERE artist_id=?", artistIDVal)
+
 				var songTitle string
 				var songPathstr string
+				var songID int
 				if err2 != nil {
 					fmt.Println(err2)
 				}
 				for songDetails.Next() {
-
-					songDetails.Scan(&songTitle, &songPathstr)
+					songDetails.Scan(&songID, &songTitle, &songPathstr)
 					if search == songTitle[0:strings.Index(songTitle, "-")] {
 						temp := Songschild{SongID: songID, Song: songTitle, SongPath: songPathstr}
 						t.MySongChild = append(t.MySongChild, temp)
 						fmt.Println(songPathstr)
 					}
-
 				}
 
 			}
@@ -580,9 +677,7 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 
 		fmt.Println("this is my message from options: ", r.FormValue("songID"))
 		songidconv, err := strconv.Atoi(r.FormValue("songID"))
-		myquery, err := mydb.mydb.Query("SELECT title, mp3_file FROM SONG WHERE songID=?", songidconv)
-		defer myquery.Close()
-		myquery.Next()
+		myquery := mydb.mydb.QueryRow("SELECT title, mp3_file FROM SONG WHERE songID=?", songidconv)
 		var title string
 		var path string
 		myquery.Scan(&title, &path)
@@ -702,10 +797,8 @@ func (mydb *dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 	artistname := string(r.FormValue("artist_name"))
 
 	artistIDQuery := fmt.Sprintf("SELECT ArtistID FROM ARTIST WHERE artist_name=\"%s\"", artistname)
-	myartistID, err2 := mydb.mydb.Query(artistIDQuery)
+	myartistID := mydb.mydb.QueryRow(artistIDQuery)
 	fmt.Println("after query artistid")
-	defer myartistID.Close()
-	myartistID.Next()
 	artistidNUM := 0
 	myartistID.Scan(&artistidNUM)
 
@@ -782,13 +875,12 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 
 		for top5query.Next() {
 			top5query.Scan(&id, &listens)
-			myquery, err := mydb.mydb.Query("SELECT title FROM SONG WHERE songID=?", id)
+			myquery := mydb.mydb.QueryRow("SELECT title FROM SONG WHERE songID=?", id)
 			if err != nil {
 				fmt.Println(err)
 			}
-			defer myquery.Close()
 			var title string
-			myquery.Next()
+
 			myquery.Scan(&title)
 
 			temp := Songschild{Song: title, Listens: listens}
@@ -862,6 +954,11 @@ func (mydb *dbstruct) reportsResults(w http.ResponseWriter, r *http.Request) {
 }
 func (mydb *dbstruct) reportsResultsUserCreate(w http.ResponseWriter, r *http.Request) {
 	if err := tpl.ExecuteTemplate(w, "sortByUserCreate.html", mydb.UserReport); err != nil {
+		fmt.Println("err")
+	}
+}
+func (mydb *dbstruct) reportsResultsPlaylistCreate(w http.ResponseWriter, r *http.Request) {
+	if err := tpl.ExecuteTemplate(w, "sortByPlaylistCreate.html", mydb.UserReport); err != nil {
 		fmt.Println("err")
 	}
 }
@@ -982,29 +1079,30 @@ func (mydb *dbstruct) reports(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/reportsResultsUserCreate.html", http.StatusSeeOther)
 	} else if reportMode == "playlistcreationbydate" {
 		fmt.Println("ksjhlkjshfd here")
-		myquery, err2 := mydb.mydb.Query("SELECT Playlist_ID, date_created, date_registered, name_of_user FROM user")
+		myquery, err2 := mydb.mydb.Query("SELECT Playlist_ID, date_created, playlist_name, UserID FROM playlist")
 
 		defer myquery.Close()
 		if err2 != nil {
 			fmt.Println(err2)
 		}
 		var userID int
-		var username string
+		var playlistid int
+
 		date := time.Now().Format("2006-01-05 15:04:05")
-		var fullname string
+		var playlistname string
 
 		for myquery.Next() {
-			myquery.Scan(&userID, &username, &date, &fullname)
+			myquery.Scan(&playlistid, &date, &playlistname, &userID)
 			timeOG, err := time.Parse("2006-01-02 15:04:05", date)
 			if err != nil {
 				fmt.Println(err)
 			}
 			if dateCheckbox == "Notchecked" {
 				if timeOG.After(timefrom) && timeOG.Before(timeto) {
-					mydb.UserReport = append(mydb.UserReport, UserReport{Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
+					mydb.UserReport = append(mydb.UserReport, UserReport{Userid: userID, Date_regist: date, Playlist_name: playlistname})
 				}
 			} else {
-				mydb.UserReport = append(mydb.UserReport, UserReport{Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
+				mydb.UserReport = append(mydb.UserReport, UserReport{Userid: userID, Date_regist: date, Playlist_name: playlistname})
 			}
 		}
 		http.Redirect(w, r, "/reportsResultsUserCreate.html", http.StatusSeeOther)
@@ -1028,16 +1126,11 @@ func (mydb *dbstruct) AccountPage(w http.ResponseWriter, r *http.Request) {
 	}
 	mytest := reflect.ValueOf(myuserID)
 	mytest2 := reflect.ValueOf(myemail)
-	myquery, err := mydb.mydb.Query("SELECT username, date_registered, name_of_user FROM USER WHERE UserID=?", myuserID)
-	defer myquery.Close()
+	myquery := mydb.mydb.QueryRow("SELECT username, date_registered, name_of_user FROM USER WHERE UserID=?", myuserID)
 
-	if err != nil {
-		fmt.Println(err)
-	}
 	var username string
 	date := time.Now().Format("2006-01-02 15:04:05")
 	var fullname string
-	myquery.Next()
 	myquery.Scan(&username, &date, &fullname)
 
 	nameSplit := strings.Split(fullname, "_")
@@ -1246,6 +1339,8 @@ func main() {
 	http.HandleFunc("/reports", Auth(mydb.reports))
 	http.HandleFunc("/reportsResults.html", Auth(mydb.reportsResults))
 	http.HandleFunc("/reportsResultsUserCreate.html", Auth(mydb.reportsResultsUserCreate))
+	http.HandleFunc("/reportsResultsPlaylistCreate.html", Auth(mydb.reportsResultsPlaylistCreate))
+
 	http.HandleFunc("/changepass.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/changepass.html")
 	})

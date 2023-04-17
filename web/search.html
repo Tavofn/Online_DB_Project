@@ -6,6 +6,7 @@
    <link rel="stylesheet" href="/css/search.css">
     <link rel="stylesheet" type="text/css" href="/css/navbar.css"/>
     <link rel="stylesheet" type="text/css" href="/css/drop.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/playbutton.css"/>
    
     
 </head>
@@ -80,7 +81,8 @@
 
       <div id = "playBox">
         <p id = "songtitle">{{.SelectedSong}}</p>
-        <button id = "playpause" onclick="playPause()">Play/Pause</button>
+        <!-- <button class="playBtn" id = "playpause" onclick="playPause()">Play/Pause</button> -->
+        <a id = "playpause" onclick="playPause()" class="playBtn"></a>
       </div>
 
     </div>

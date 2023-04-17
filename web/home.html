@@ -4,7 +4,7 @@
     <title>Coog Music - Home</title>
     <link rel="stylesheet" type="text/css" href="/css/home.css"/>
     <link rel="stylesheet" type="text/css" href="/css/navbar.css"/>
-    
+    <link rel="stylesheet" type="text/css" href="/css/playbutton.css"/>
     
 </head>
 
@@ -31,7 +31,7 @@
         </div>
         <img src = "/images/listenbutton.png" width="13%">
         
-            <div id="playBox">
+            <div id="playBoxHome">
                 <form method="POST">
                     <input id="playlistVals" name="playlistVals" value="" hidden>
                     <input id="isPlaylistDelete" name="isPlaylistDelete" value="false" hidden>
@@ -72,9 +72,14 @@
             <source id="source" src="" type="audio/mp3">
           </audio> 
 
-          <div id = "playBoxPlayer">
+          <!-- <div id = "playBoxPlayer">
             <p style="margin-right: 10px;" id = "songtitle"></p>
             <button id = "playpause" onclick="playPause()">Play/Pause</button>
+          </div> -->
+          <div id = "playBox">
+            <p style="margin-right: 10px;" id = "songtitle"></p>
+            <!-- <button class="playBtn" id = "playpause" onclick="playPause()">Play/Pause</button> -->
+            <a id = "playpause" onclick="playPause()" class="playBtn"></a>
           </div>
     
         </div>
@@ -147,6 +152,5 @@
             }
     }
     </script>
-    
 </body>
 </html>

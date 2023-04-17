@@ -46,26 +46,4 @@ form button{
     overflow-y:scroll;
   } */
   
-  #playBox {
-    width: 320px;
-    padding: 10px;
-    background-color:gray;
  
-
-    position: fixed;
-    top: 50%;
-    left: 43%;
-    margin-top: 300px;
-  }
-  #songtitle {
-    color:white;
-  }
-  #playpause {
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
-
-  }
