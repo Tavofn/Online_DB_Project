@@ -87,6 +87,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="/css/myaccount.css">
+    <link rel="stylesheet" type="text/css" href="/css/navbar.css"/>
+
     <title>My Account</title>
     <!-- <script src="script.js"></script> -->
     <style>
@@ -111,6 +113,32 @@
     </style>
 </head>
 <body style = "background-color: black;">
+  <header>
+    <div class="main">
+        <ul>
+            <li><a  href="/"> Home</a> </a></li>
+            <li><a  href="/search.html"> Search </a> </a></li>
+            <li><a  href="upload_song"> Upload a Song </a> </a></li>
+            <li><a  href="reports"> Generate a Report </a> </a></li>
+            <li><a  href="createplay.html"> Create Playlists  </a> </a></li>
+            <li><a  href="/top5.html"> Top 5 Songs  </a> </a></li>
+
+            <li class="dropdown">
+                <a href="myaccount.html"> My Account &#9660;</a>
+                <ul class="dropdown-content">
+                    <li><a href="myaccount.html">Account Settings</a></li>
+                    <li><a href="/logout">Logout</a></li>
+                </ul>
+            </li>
+            
+        </ul>
+    </div>
+    <br>
+    <br>
+    <br>
+
+
+</header>
     <div class="container">
       <div class="sidebar">
         <h2>My Account</h2>
@@ -121,10 +149,6 @@
   
         <a href="editP.html">
           <div class="menu-item" id="edit" >Edit Profile</div>
-        </a>
-  
-        <a href="/changepass.html">
-          <div class="menu-item" id="changepass">Change Password</div>
         </a>
   
         <a href="/logout">
@@ -138,20 +162,12 @@
         <form method="POST">
           <table>
             <tr>
-              <td>First Name:</td>
-              <td><input type="text" name="first_name" value="John"></td>
-            </tr>
-            <tr>
-              <td>Last Name:</td>
-              <td><input type="text" name="last_name" value="Doe"></td>
-            </tr>
-            <tr>
               <td>Username:</td>
-              <td><input type="text" name="username" value="johndoe"></td>
+              <td><input type="text" name="username" value=""></td>
             </tr>
             <tr>
               <td>Email:</td>
-              <td><input type="email" name="email" value="johndoe@example.com"></td>
+              <td><input type="email" name="email" value=""></td>
             </tr>
           </table>
           <input type="submit" value="Save Changes">

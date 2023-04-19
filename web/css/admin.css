@@ -1,0 +1,192 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: monospace;
+
+}
+.container{
+    position: fixed;
+  top: 50%;
+  left: 50%;
+  margin-top: -60px;
+  margin-left: -230px;
+  
+}
+.buttonlist {
+  overflow-y: auto;
+  
+  height:500px;
+}
+.btn-group button {
+  background-color: #04AA6D; /* Green background */
+  border: 1px solid green; /* Green border */
+  color: white; /* White text */
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  width: 50%; /* Set a width if needed */
+  display: block; /* Make the buttons appear below each other */
+
+}
+
+.btn-group button:not(:last-child) {
+  border-bottom: none; /* Prevent double borders */
+}
+
+/* Add a background color on hover */
+.btn-group button:hover {
+  background-color: #3e8e41;
+}
+/* form{
+    
+    background: #fff;
+    width: 600px;
+    height: 55px;
+    display: flex;
+}
+form input{
+    flex: 1;
+    border: none;
+    outline: none;
+}
+form button{
+    background: purple;
+    padding: 10px 50px;
+    border: none;
+    outline: none;
+    color: #fff;
+    letter-spacing: 1px;
+    cursor: pointer;
+
+} */
+#select-box{
+    /* height:40px; */
+    overflow-y:auto;
+      /* width:50px; */
+  }
+
+body{
+    background-image:url("/images/bkn.jpeg");
+    background-size: cover;
+    /* background-position: center center; */
+    background-attachment: fixed;
+    height: auto;
+    font-family: sans-serif;
+    background-repeat: no-repeat;
+}
+
+
+.side-text{
+  font-size: 4rem;
+  text-align: center;
+  height:90vh;
+  line-height: 90vh;
+  /* margin-left: 15%; */
+  color: #fcedd8;
+  background: transparent;
+   font-family: 'Niconne', cursive;
+  font-weight: 600;
+  text-shadow: 5px 5px 0px #eb452b, 
+              10px 10px 0px #efa032, 
+              15px 15px 0px #46b59b, 
+              20px 20px 0px #017e7f, 
+              25px 25px 0px #052939, 
+              30px 30px 0px #c11a2b, 
+              35px 35px 0px #c11a2b, 
+              40px 40px 0px #c11a2b, 
+              45px 45px 0px #c11a2b;
+}
+ #playBoxHome {
+  display:flex;
+  align-content: start;
+  align-items: center;
+  justify-content: center;
+  
+  }
+  #titleLabel {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #playBoxHome1 {
+    background-color: grey;
+    width:15%;
+    min-width:
+    400px;
+    min-height:400px;
+    margin-left: 2px;
+  }
+  
+  #playBoxPlayer {
+    width: 320px;
+    padding: 10px;
+    background-color:gray;
+ 
+
+    position: fixed;
+    top: 50%;
+    left: 43%;
+    margin-top: 300px;
+  }
+  #playBoxRight {
+    width: 320px;
+    padding: 10px;
+    height: 500px;
+    background-color:gray;
+    position: fixed;
+    margin-top: 100px;
+    margin-right: 50px;
+    right: 0;  
+}
+#message {
+  color:white;
+  font-size: 18px;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+}
+  #songtitle {
+    color:white;
+  }
+  #playpause {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+
+  }
+/*.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #017e7f;
+    min-width: 160px;
+    z-index: 1;
+    
+    
+}
+.dropdown-content li {
+    /*padding: 12px 16px;
+    list-style: none;
+    border-bottom: 1px solid #ddd;
+   
+    text-align: left;
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}*/
+
+/*.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: rgb(71, 200, 187);
+    min-width: 160px;
+    z-index: 1;
+}
+.dropdown-content li {
+    padding: 12px 16px;
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}*/
+

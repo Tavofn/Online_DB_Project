@@ -43,16 +43,28 @@
     </style>
     
 </head>
-
-<body background="/images/bkn.jpeg">
+<style>
+    body{
+    margin: 0;
+    padding: 0;
+    background: url("/images/bkn.jpeg");
+    /* background-color: black; */
+    background-size: cover;
+    /* background-position: center; */
+    font-family: sans-serif;
+}
+</style>
+<body>
     <header>
         <div class="main">
             <ul>
                 <li><a  href="/"> Home</a> </a></li>
                 <li><a  href="search.html"> Search </a> </a></li>
                 <li><a  href="upload_song"> Upload a Song </a> </a></li>
-                <li><a  href="reports.html"> Generate a Report </a> </a></li>
+                <li><a  href="reports"> Generate a Report </a> </a></li>
                 <li><a  href="createplay.html"> Create Playlists  </a> </a></li>
+                <li><a  href="/top5.html"> Top 5 Songs  </a> </a></li>
+
                 <li class="dropdown">
                     <a href="myaccount.html"> My Account &#9660;</a>
                     <ul class="dropdown-content">

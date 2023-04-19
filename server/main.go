@@ -45,6 +45,7 @@ type UserReport struct {
 	Name_user     string
 	Playlist_name string
 	Playlist_id   string
+	Uploadedby    string
 }
 type Songschild struct {
 	SongID       int
@@ -55,6 +56,7 @@ type Songschild struct {
 	Listens      int
 	ArtistID     int
 	Genre        string
+	Uploadedby   string
 }
 type Artist struct {
 	artist string
@@ -65,6 +67,7 @@ type Songs struct {
 	SelectedSong     string
 	SelectedSongPath string
 }
+
 type dbstruct struct {
 	mydb       *sql.DB
 	user       User
@@ -89,6 +92,7 @@ type playlistChild struct {
 	Song         string
 	SongPath     string
 	Listens      int
+	Username     string
 }
 type userListCHILD struct {
 	Username string
@@ -96,6 +100,12 @@ type userListCHILD struct {
 }
 type userList struct {
 	Users []userListCHILD
+}
+type HolyGrail struct {
+	MySongChild      []Songschild
+	MyUserReports    []UserReport
+	MyPlaylistChilds []playlistChild
+	Message          string
 }
 
 var tpl *template.Template
@@ -209,7 +219,13 @@ func (mydb *dbstruct) login(w http.ResponseWriter, r *http.Request) {
 			session.Values["date"] = date
 			// mydb.user.date_regist = date
 			session.Save(r, w)
-			http.Redirect(w, r, "/", http.StatusSeeOther)
+			if t.username == "Admin" {
+				http.Redirect(w, r, "/Admin.html", http.StatusSeeOther)
+
+			} else {
+				http.Redirect(w, r, "/", http.StatusSeeOther)
+
+			}
 
 			return
 		}
@@ -361,6 +377,7 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 	if strings.Contains(search, ":") {
 		search = search[0:strings.Index(search, ":")]
 	}
+	fmt.Println("THIS IS YOUR SEARCH RESULT: ", search)
 	if searchType == "Song Name" {
 		fmt.Println("i'm here now on song name")
 		songsID, err2 := mydb.mydb.Query("SELECT songID FROM song")
@@ -833,6 +850,7 @@ func (mydb *dbstruct) uploadsong(w http.ResponseWriter, r *http.Request) {
 
 	tpl.ExecuteTemplate(w, "upload_song.html", "Song successfuly uploaded")
 }
+
 func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session")
 	myuserID, ok := session.Values["userID"]
@@ -855,51 +873,45 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 		for myquery.Next() {
 			//get playlist name and id
 			myquery.Scan(&playlistid, &playlistname)
-			myquery, err2 := mydb.mydb.Query("SELECT song,songpath,songID_pl FROM PLAYLIST_SONG WHERE PlaylistID=?", playlistid)
+			myquery, err2 := mydb.mydb.Query("SELECT song,songpath FROM PLAYLIST_SONG WHERE PlaylistID=?", playlistid)
 			if err2 != nil {
 				fmt.Println("test")
 			}
 			defer myquery.Close()
 			var songname string
 			var songpath string
-			var songID int
-			var listensVal int
 			songnameList := ""
 			songpathList := ""
 			for myquery.Next() {
 				//add songs under playlist name and id
-				myquery.Scan(&songname, &songpath, &songID)
-				listens := mydb.mydb.QueryRow("SELECT listens from SONG WHERE songID=?", songID)
-				listens.Scan(&listensVal)
+				myquery.Scan(&songname, &songpath)
 				songnameList = songnameList + songname + ","
 				songpathList = songpathList + songpath + ","
 
 			}
-
-			temp := playlistChild{Listens: listensVal, Playlistname: playlistname, PlaylistID: playlistid, Song: songnameList, SongPath: songpathList}
+			temp := playlistChild{Playlistname: playlistname, PlaylistID: playlistid, Song: songnameList, SongPath: songpathList}
 			t.Plchild = append(t.Plchild, temp)
 		}
-		top5query, err := mydb.mydb.Query("SELECT song_id, listensTOP FROM TOP_5_SONGS ORDER BY listensTOP DESC")
-		defer top5query.Close()
-		var id int
-		var listens int
+		// top5query, err := mydb.mydb.Query("SELECT song_id, listensTOP FROM TOP_5_SONGS ORDER BY listensTOP DESC")
+		// defer top5query.Close()
+		// var id int
+		// var listens int
 
-		for top5query.Next() {
-			top5query.Scan(&id, &listens)
-			myquery := mydb.mydb.QueryRow("SELECT title FROM SONG WHERE songID=?", id)
-			if err != nil {
-				fmt.Println(err)
-			}
-			var title string
+		// for top5query.Next() {
+		// 	top5query.Scan(&id, &listens)
+		// 	myquery := mydb.mydb.QueryRow("SELECT title FROM SONG WHERE songID=?", id)
+		// 	if err != nil {
+		// 		fmt.Println(err)
+		// 	}
+		// 	var title string
+		// 	myquery.Scan(&title)
 
-			myquery.Scan(&title)
-
-			temp := Songschild{Song: title, Listens: listens}
-			t.Top5 = append(t.Top5, temp)
-		}
-		if err != nil {
-			fmt.Println(err)
-		}
+		// 	temp := Songschild{Song: title, Listens: listens}
+		// 	t.Top5 = append(t.Top5, temp)
+		// }
+		// if err != nil {
+		// 	fmt.Println(err)
+		// }
 		username := mydb.mydb.QueryRow("SELECT username FROM user WHERE UserID=?", myuserID)
 		var usernameVal string
 		username.Scan(&usernameVal)
@@ -911,7 +923,6 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 	playlistIDVar := r.FormValue("playlistVals")
 	res := strings.Split(playlistIDVar, "]")
 	plIDS.PlaylistID = res[0]
-	fmt.Println(plIDS.PlaylistID)
 	if isPlaylistDelete == "true" {
 		value, err := strconv.Atoi(plIDS.PlaylistID)
 
@@ -934,7 +945,6 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/searchPlaylistSong.html", http.StatusSeeOther)
 
 	}
-
 }
 func (mydb *dbstruct) createPlaylist(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session")
@@ -978,6 +988,30 @@ func (mydb *dbstruct) reportsResultsPlaylistCreate(w http.ResponseWriter, r *htt
 		fmt.Println("err")
 	}
 }
+func (mydb *dbstruct) top5(w http.ResponseWriter, r *http.Request) {
+	top5query, err := mydb.mydb.Query("SELECT song_id, listensTOP FROM TOP_5_SONGS ORDER BY listensTOP DESC")
+	defer top5query.Close()
+	var id int
+	var listens int
+	var t playlist
+	for top5query.Next() {
+		top5query.Scan(&id, &listens)
+		myquery := mydb.mydb.QueryRow("SELECT title FROM SONG WHERE songID=?", id)
+		if err != nil {
+			fmt.Println(err)
+		}
+		var title string
+		myquery.Scan(&title)
+
+		temp := Songschild{Song: title, Listens: listens}
+		t.Top5 = append(t.Top5, temp)
+	}
+	if err != nil {
+		fmt.Println(err)
+	}
+	tpl.ExecuteTemplate(w, "top5.html", t)
+
+}
 func (mydb *dbstruct) reports(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		fmt.Println("here")
@@ -1010,7 +1044,9 @@ func (mydb *dbstruct) reports(w http.ResponseWriter, r *http.Request) {
 	dateTo := r.FormValue("dateTo") + " 23:59:59"
 	timefrom, err := time.Parse("2006-01-02 15:04:05", datefrom)
 	timeto, err := time.Parse("2006-01-02 15:04:05", dateTo)
-	fmt.Println("my checkbox: ", checkbox)
+	fmt.Println("my checkbox for USERS: ", checkbox)
+	fmt.Println("my checkbox for DATECHECKBOX: ", dateCheckbox)
+
 	if reportMode == "uploadbydate" {
 		var myquery *sql.Rows
 		var err2 error
@@ -1044,14 +1080,17 @@ func (mydb *dbstruct) reports(w http.ResponseWriter, r *http.Request) {
 		for myquery.Next() {
 			myquery.Scan(&songID, &date, &title, &mp3_file, &userID, &listens, &artistID, &genre)
 			timeOG, err := time.Parse("2006-01-02 15:04:05", date)
+			myqueryName := mydb.mydb.QueryRow("SELECT username FROM user WHERE UserID=?", userID)
+			var username string
+			myqueryName.Scan(&username)
 
 			if dateCheckbox == "Notchecked" {
 				if timeOG.After(timefrom) && timeOG.Before(timeto) {
-					temp := Songschild{SongID: songID, Release_date: date, Song: title, UserID: userID, Listens: listens, ArtistID: artistID, Genre: genre}
+					temp := Songschild{Uploadedby: username, SongID: songID, Release_date: date, Song: title, UserID: userID, Listens: listens, ArtistID: artistID, Genre: genre}
 					t.MySongChild = append(t.MySongChild, temp)
 				}
 			} else {
-				temp := Songschild{SongID: songID, Release_date: date, Song: title, UserID: userID, Listens: listens, ArtistID: artistID, Genre: genre}
+				temp := Songschild{Uploadedby: username, SongID: songID, Release_date: date, Song: title, UserID: userID, Listens: listens, ArtistID: artistID, Genre: genre}
 				t.MySongChild = append(t.MySongChild, temp)
 			}
 
@@ -1066,8 +1105,8 @@ func (mydb *dbstruct) reports(w http.ResponseWriter, r *http.Request) {
 		mydb.Mysongs = t
 		http.Redirect(w, r, "/reportsResults.html", http.StatusSeeOther)
 	} else if reportMode == "usercreationbydate" {
-		fmt.Println("ksjhlkjshfd here")
-		myquery, err2 := mydb.mydb.Query("SELECT UserID, username, date_registered, name_of_user FROM user")
+		fmt.Println("ksjhlkjshfd here on usercreation")
+		myquery, err2 := mydb.mydb.Query("SELECT UserID, username, date_registered, name_of_user, email FROM user")
 
 		defer myquery.Close()
 		if err2 != nil {
@@ -1077,21 +1116,25 @@ func (mydb *dbstruct) reports(w http.ResponseWriter, r *http.Request) {
 		var username string
 		date := time.Now().Format("2006-01-05 15:04:05")
 		var fullname string
-
+		var email string
+		var t []UserReport
 		for myquery.Next() {
-			myquery.Scan(&userID, &username, &date, &fullname)
+			myquery.Scan(&userID, &username, &date, &fullname, &email)
 			timeOG, err := time.Parse("2006-01-02 15:04:05", date)
 			if err != nil {
 				fmt.Println(err)
 			}
 			if dateCheckbox == "Notchecked" {
 				if timeOG.After(timefrom) && timeOG.Before(timeto) {
-					mydb.UserReport = append(mydb.UserReport, UserReport{Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
+					t = append(t, UserReport{Email: email, Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
+					// mydb.UserReport = append(mydb.UserReport, UserReport{Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
 				}
 			} else {
-				mydb.UserReport = append(mydb.UserReport, UserReport{Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
+				t = append(t, UserReport{Email: email, Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
+				// mydb.UserReport = append(mydb.UserReport, UserReport{Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
 			}
 		}
+		mydb.UserReport = t
 		http.Redirect(w, r, "/reportsResultsUserCreate.html", http.StatusSeeOther)
 	} else if reportMode == "playlistcreationbydate" {
 		fmt.Println("ksjhlkjshfd here")
@@ -1106,9 +1149,15 @@ func (mydb *dbstruct) reports(w http.ResponseWriter, r *http.Request) {
 
 		date := time.Now().Format("2006-01-05 15:04:05")
 		var playlistname string
+		var t []UserReport
 
 		for myquery.Next() {
 			myquery.Scan(&playlistid, &date, &playlistname, &userID)
+			myqueryName := mydb.mydb.QueryRow("SELECT username FROM user WHERE UserID=?", userID)
+			var username string
+
+			myqueryName.Scan(&username)
+
 			plID := strconv.Itoa(playlistid)
 			timeOG, err := time.Parse("2006-01-02 15:04:05", date)
 			if err != nil {
@@ -1116,12 +1165,13 @@ func (mydb *dbstruct) reports(w http.ResponseWriter, r *http.Request) {
 			}
 			if dateCheckbox == "Notchecked" {
 				if timeOG.After(timefrom) && timeOG.Before(timeto) {
-					mydb.UserReport = append(mydb.UserReport, UserReport{Playlist_id: plID, Userid: userID, Date_regist: date, Playlist_name: playlistname})
+					t = append(t, UserReport{Uploadedby: username, Playlist_id: plID, Userid: userID, Date_regist: date, Playlist_name: playlistname})
 				}
 			} else {
-				mydb.UserReport = append(mydb.UserReport, UserReport{Playlist_id: plID, Userid: userID, Date_regist: date, Playlist_name: playlistname})
+				t = append(t, UserReport{Uploadedby: username, Playlist_id: plID, Userid: userID, Date_regist: date, Playlist_name: playlistname})
 			}
 		}
+		mydb.UserReport = t
 		http.Redirect(w, r, "/reportsResultsPlaylistCreate.html", http.StatusSeeOther)
 	}
 
@@ -1130,7 +1180,7 @@ func (mydb *dbstruct) AccountPage(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("im here")
 	session, _ := store.Get(r, "session")
 	myuserID, _ := session.Values["userID"]
-	myemail, _ := session.Values["email"]
+	// myemail, _ := session.Values["email"]
 
 	type temp struct {
 		UserID      int
@@ -1142,29 +1192,250 @@ func (mydb *dbstruct) AccountPage(w http.ResponseWriter, r *http.Request) {
 		Last        string
 	}
 	mytest := reflect.ValueOf(myuserID)
-	mytest2 := reflect.ValueOf(myemail)
-	myquery := mydb.mydb.QueryRow("SELECT username, date_registered, name_of_user FROM USER WHERE UserID=?", myuserID)
+	// mytest2 := reflect.ValueOf(myemail)
+	myquery := mydb.mydb.QueryRow("SELECT username, email, date_registered, name_of_user FROM USER WHERE UserID=?", myuserID)
 
 	var username string
 	date := time.Now().Format("2006-01-02 15:04:05")
 	var fullname string
-	myquery.Scan(&username, &date, &fullname)
+	var email string
+	myquery.Scan(&username, &email, &date, &fullname)
 
 	nameSplit := strings.Split(fullname, "_")
 
-	tempstr := temp{UserID: int(mytest.Int()), Username: username, Email: mytest2.String(), Date_regist: date, First: nameSplit[0], Last: nameSplit[1]}
+	tempstr := temp{UserID: int(mytest.Int()), Username: username, Email: email, Date_regist: date, First: nameSplit[0], Last: nameSplit[1]}
 	tpl.ExecuteTemplate(w, "myaccount.html", tempstr)
+}
+func (mydb *dbstruct) admin(w http.ResponseWriter, r *http.Request) {
+	session, _ := store.Get(r, "session")
+	userID, _ := session.Values["userID"]
+	mytest := reflect.ValueOf(userID)
+	var God HolyGrail
+	if mytest.Interface().(int) != 14 {
+		tpl.ExecuteTemplate(w, "login.html", nil)
+		return
+	}
+
+	ALLSONGS, err := mydb.mydb.Query("SELECT songID, title FROM song")
+	if err != nil {
+		God.Message = err.Error()
+		tpl.ExecuteTemplate(w, "Admin.html", God)
+		fmt.Println(err)
+		return
+	}
+	var songID int
+	var songName string
+
+	for ALLSONGS.Next() {
+		ALLSONGS.Scan(&songID, &songName)
+		temp := Songschild{SongID: songID, Song: songName}
+		God.MySongChild = append(God.MySongChild, temp)
+
+	}
+
+	ALLUSERS, err := mydb.mydb.Query("SELECT UserID, username FROM user")
+	if err != nil {
+		God.Message = err.Error()
+		tpl.ExecuteTemplate(w, "Admin.html", God)
+		fmt.Println(err)
+		return
+	}
+	var userIDVAL int
+	var username string
+	for ALLUSERS.Next() {
+		ALLUSERS.Scan(&userIDVAL, &username)
+		if userIDVAL != 14 {
+			temp := UserReport{Userid: userIDVAL, Username: username}
+			God.MyUserReports = append(God.MyUserReports, temp)
+		}
+
+	}
+
+	// ALLPLAYLISTS, err := mydb.mydb.Query("SELECT Playlist_ID, playlist_name, UserID FROM playlist")
+	ALLPLAYLISTS, err := mydb.mydb.Query("SELECT playlist.Playlist_ID, playlist.playlist_name, playlist.UserID, user.username FROM `3380-project`.playlist,`3380-project`.user WHERE user.UserID=playlist.UserID")
+
+	if err != nil {
+		God.Message = err.Error()
+		tpl.ExecuteTemplate(w, "Admin.html", God)
+		fmt.Println(err)
+		return
+	}
+	var playlistID int
+	var playlistname string
+	var userIDpl int
+
+	var usernamePL string
+	for ALLPLAYLISTS.Next() {
+		ALLPLAYLISTS.Scan(&playlistID, &playlistname, &userIDpl, &usernamePL)
+
+		temp := playlistChild{Username: usernamePL, PlaylistID: playlistID, Playlistname: playlistname}
+		God.MyPlaylistChilds = append(God.MyPlaylistChilds, temp)
+	}
+	if r.Method == "GET" {
+		tpl.ExecuteTemplate(w, "Admin.html", God)
+
+	}
+
+	if r.Method == "POST" {
+		r.ParseForm()
+		fmt.Println("on POST")
+		selectedType := r.FormValue("selectedType")
+		fmt.Println(selectedType)
+		if selectedType == "songRemove" {
+			songID := r.FormValue("songID")
+			fmt.Println(songID)
+			// songName := r.FormValue("songName")
+
+			deleteSongPlaylist, err := mydb.mydb.Prepare("DELETE FROM playlist_song WHERE songID_pl=?")
+			songIDtoINT, err := strconv.Atoi(songID)
+			path := mydb.mydb.QueryRow("SELECT mp3_file FROM song WHERE songID=?", songIDtoINT)
+			var mp3path string
+
+			path.Scan(&mp3path)
+			fmt.Println(mp3path[1:])
+			e := os.Remove(mp3path[1:])
+
+			if e != nil {
+				fmt.Println(e)
+			}
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			top5song := mydb.mydb.QueryRow("SELECT song_id FROM top_5_songs WHERE song_id=?", songIDtoINT)
+			var songIDtop5 int
+			top5error := top5song.Scan(&songIDtop5)
+
+			if top5error == nil { //SONGID IS IN TOP 5
+				fmt.Println("song is in top 5 ")
+				fmt.Println("im here on delete")
+				lastplacenewVal := mydb.mydb.QueryRow("SELECT songID,listens FROM song ORDER BY listens DESC LIMIT 5,1;")
+				var songIDlast int
+				var listensLast int
+				lastplacenewVal.Scan(&songIDlast, &listensLast)
+				fmt.Println("sdfsdf" + strconv.Itoa(songIDlast))
+				insertSongTop5, err := mydb.mydb.Prepare("INSERT INTO top_5_songs (song_id,listensTOP) VALUES (?,?);")
+				_, myerr := insertSongTop5.Exec(songIDlast, listensLast)
+				if myerr != nil {
+					God.Message = myerr.Error()
+					fmt.Println(myerr)
+					tpl.ExecuteTemplate(w, "Admin.html", God)
+					return
+
+				}
+
+				deleteSongTop5, err := mydb.mydb.Prepare("DELETE FROM top_5_songs WHERE song_id=?")
+				if err != nil {
+					fmt.Println(err)
+				}
+				_, errdel := deleteSongTop5.Exec(&songIDtop5)
+				fmt.Println(errdel)
+
+			} else {
+				fmt.Println("not on top 5")
+				fmt.Println(top5error)
+			}
+			deleteSong, err := mydb.mydb.Prepare("DELETE FROM song WHERE songID=?")
+
+			if err != nil {
+				God.Message = err.Error()
+				fmt.Println(err)
+				tpl.ExecuteTemplate(w, "Admin.html", God)
+
+				return
+			}
+			_, errpl := deleteSongPlaylist.Exec(songIDtoINT)
+			_, errsong := deleteSong.Exec(songIDtoINT)
+			fmt.Println(errpl)
+			fmt.Println(errsong)
+			fmt.Println("song removed")
+			God.Message = "song removed"
+
+		} else if selectedType == "userRemove" {
+			userID := r.FormValue("userID")
+			// username := r.FormValue("username")
+			fmt.Println("im on user remove")
+			songIDtoINT, err := strconv.Atoi(userID)
+			getPlaylistSongs, err := mydb.mydb.Query("SELECT DISTINCT playlist_song.PlaylistID FROM `3380-project`.playlist, `3380-project`.playlist_song WHERE playlist.UserID=? AND playlist.Playlist_ID=playlist_song.PlaylistID;", songIDtoINT)
+
+			var playlistIDplaylistsong int
+			for getPlaylistSongs.Next() {
+				getPlaylistSongs.Scan(&playlistIDplaylistsong)
+				deleteUserPlaylist, err := mydb.mydb.Prepare("DELETE FROM playlist_song WHERE playlistID=?")
+				if err != nil {
+					fmt.Println(err)
+				}
+				_, err2 := deleteUserPlaylist.Exec(playlistIDplaylistsong)
+				fmt.Print(err2)
+			}
+			deleteUserPlaylist, err := mydb.mydb.Prepare("DELETE FROM playlist WHERE UserID=?")
+			_, myerr1 := deleteUserPlaylist.Exec(songIDtoINT)
+			if myerr1 != nil {
+				fmt.Println(myerr1)
+			}
+			deleteUserSongs, err := mydb.mydb.Prepare("DELETE FROM song WHERE UserID=?")
+
+			_, myerr3 := deleteUserSongs.Exec(songIDtoINT)
+			if myerr1 != nil {
+				fmt.Println(myerr1)
+			}
+			if myerr3 != nil {
+				fmt.Println(myerr3)
+			}
+			deleteUser, err := mydb.mydb.Prepare("DELETE FROM user WHERE UserID=?")
+
+			if err != nil {
+				God.Message = err.Error()
+				tpl.ExecuteTemplate(w, "Admin.html", God)
+				fmt.Println(err)
+				return
+			}
+
+			_, myerr := deleteUser.Exec(songIDtoINT)
+			if myerr != nil {
+				fmt.Println(myerr)
+			}
+			God.Message = "User removed"
+
+		} else if selectedType == "playlistRemove" {
+			playlistID := r.FormValue("playlistID")
+			// playlistName := r.FormValue("playlistName")
+
+			deleteSongPlaylist, err := mydb.mydb.Prepare("DELETE FROM playlist_song WHERE playlistID=?")
+			playlistIDtoINT, err := strconv.Atoi(playlistID)
+			_, errDel := deleteSongPlaylist.Exec(playlistIDtoINT)
+			fmt.Println(errDel)
+			deletePlaylist, err := mydb.mydb.Prepare("DELETE FROM playlist WHERE Playlist_ID=?")
+			_, errdelpl := deletePlaylist.Exec(playlistIDtoINT)
+			fmt.Println(errdelpl)
+			if err != nil {
+				God.Message = err.Error()
+				tpl.ExecuteTemplate(w, "Admin.html", God)
+				fmt.Println(err)
+				return
+			}
+
+			God.Message = "Playlist removed"
+
+		}
+
+		tpl.ExecuteTemplate(w, "Admin.html", God)
+
+	}
+
 }
 func (mydb *dbstruct) editP(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "session")
 	userID, _ := session.Values["userID"]
 	if r.Method == "GET" {
 		tpl.ExecuteTemplate(w, "editP.html", nil)
+		return
 	}
-	first := r.FormValue("first_name")
-	last := r.FormValue("last_name")
+	fmt.Println("Im at POST of editP")
 	username := r.FormValue("username")
 	email := r.FormValue("email")
+	var myquery *sql.Stmt
+	var err error
 
 	queryUName, err := mydb.mydb.Query("SELECT username FROM USER")
 	if err != nil {
@@ -1196,15 +1467,35 @@ func (mydb *dbstruct) editP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	myquery, err := mydb.mydb.Prepare("UPDATE user SET username=?, email=?, name_of_user=? WHERE UserID=?")
-	defer myquery.Close()
 	if err != nil {
 		fmt.Println(err)
 		tpl.ExecuteTemplate(w, "editP.html", err)
 		return
 	}
-	res, err := myquery.Exec(username, email, first+"_"+last, userID)
-	fmt.Println(res)
+	if username == "" {
+		myquery, err = mydb.mydb.Prepare("UPDATE user SET username=username, email=? WHERE UserID=?")
+		defer myquery.Close()
+
+		res, err := myquery.Exec(email, userID)
+		fmt.Println(res, err)
+	} else if email == "" {
+		myquery, err = mydb.mydb.Prepare("UPDATE user SET username=?, email=email WHERE UserID=?")
+		fmt.Println("IM ON EMAIL EMPTY :))")
+		defer myquery.Close()
+
+		res, err := myquery.Exec(username, userID)
+		fmt.Println(res, err)
+	} else if email == "" && username == "" {
+		tpl.ExecuteTemplate(w, "editP.html", "Both Fields cannot be empty")
+		return
+	} else {
+		myquery, err = mydb.mydb.Prepare("UPDATE user SET username=?, email=? WHERE UserID=?")
+		fmt.Println("IM ON EMAIL EMPTY :))")
+		defer myquery.Close()
+
+		res, err := myquery.Exec(username, email, userID)
+		fmt.Println(res, err)
+	}
 
 	tpl.ExecuteTemplate(w, "editP.html", "Successful")
 }
@@ -1290,11 +1581,26 @@ func (mydb *dbstruct) addAccountSignUp(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("sdkjfhsdf here")
 
 }
-func Auth(HandlerFunc http.HandlerFunc) http.HandlerFunc {
+func (mydb *dbstruct) Auth(HandlerFunc http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "session")
-		_, ok := session.Values["userID"]
-		if !ok {
+		val, ok := session.Values["userID"]
+		mytest := reflect.ValueOf(val)
+		if !ok || mytest.Interface().(int) == 14 {
+			http.Redirect(w, r, "/login.html", 302)
+			return
+		}
+		// ServeHTTP calls f(w, r)
+		// func (f HandlerFunc) ServeHTTP(w ResponseWriter, r *Request)
+		HandlerFunc.ServeHTTP(w, r)
+	}
+}
+func AuthAdmin(HandlerFunc http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		session, _ := store.Get(r, "session")
+		val, ok := session.Values["userID"]
+		mytest := reflect.ValueOf(val)
+		if !ok || mytest.Interface().(int) != 14 {
 			http.Redirect(w, r, "/login.html", 302)
 			return
 		}
@@ -1336,33 +1642,34 @@ func main() {
 	http.HandleFunc("/signup", mydb.addAccountSignUp)
 
 	http.HandleFunc("/logout", mydb.logout)
-	http.HandleFunc("/", mydb.home)
-	http.HandleFunc("/upload_song", Auth(mydb.uploadsong))
-	http.HandleFunc("/search.html", Auth(mydb.searchList))
+	http.HandleFunc("/", mydb.Auth(mydb.home))
+	http.HandleFunc("/upload_song", mydb.Auth(mydb.uploadsong))
+	http.HandleFunc("/search.html", mydb.Auth(mydb.searchList))
 	http.HandleFunc("/search_nologin.html", mydb.searchList)
 
-	http.HandleFunc("/searchPlaylistSong.html", Auth(mydb.searchListPlaylist))
+	http.HandleFunc("/searchPlaylistSong.html", mydb.Auth(mydb.searchListPlaylist))
 	http.HandleFunc("/forgotpassword.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/forgotpassword.html")
 	})
-
-	http.HandleFunc("/editP.html", Auth(mydb.editP))
-	http.HandleFunc("/AO.html", Auth(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/Admin.html", AuthAdmin(mydb.admin))
+	http.HandleFunc("/editP.html", mydb.Auth(mydb.editP))
+	http.HandleFunc("/AO.html", mydb.Auth(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/AO.html")
 	}))
-	http.HandleFunc("/sortByDate.html", Auth(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/sortByDate.html", mydb.Auth(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/sortByDate.html")
 	}))
-	http.HandleFunc("/reports", Auth(mydb.reports))
-	http.HandleFunc("/reportsResults.html", Auth(mydb.reportsResults))
-	http.HandleFunc("/reportsResultsUserCreate.html", Auth(mydb.reportsResultsUserCreate))
-	http.HandleFunc("/reportsResultsPlaylistCreate.html", Auth(mydb.reportsResultsPlaylistCreate))
+	http.HandleFunc("/reports", mydb.Auth(mydb.reports))
+	http.HandleFunc("/top5.html", mydb.Auth(mydb.top5))
+	http.HandleFunc("/reportsResults.html", mydb.Auth(mydb.reportsResults))
+	http.HandleFunc("/reportsResultsUserCreate.html", mydb.Auth(mydb.reportsResultsUserCreate))
+	http.HandleFunc("/reportsResultsPlaylistCreate.html", mydb.Auth(mydb.reportsResultsPlaylistCreate))
 
 	http.HandleFunc("/changepass.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/changepass.html")
 	})
-	http.HandleFunc("/myaccount.html", Auth(mydb.AccountPage))
-	http.HandleFunc("/createplay.html", Auth(mydb.createPlaylist))
+	http.HandleFunc("/myaccount.html", mydb.Auth(mydb.AccountPage))
+	http.HandleFunc("/createplay.html", mydb.Auth(mydb.createPlaylist))
 
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("./web/css"))))
 	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./web/images"))))

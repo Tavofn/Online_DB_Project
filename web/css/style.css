@@ -1,9 +1,10 @@
 body{
     margin: 0;
     padding: 0;
-    background: url("/images/slash.jpg");
+    background: url("/images/bkn.jpeg");
+    /* background-color: black; */
     background-size: cover;
-    background-position: center;
+    /* background-position: center; */
     font-family: sans-serif;
 }
 

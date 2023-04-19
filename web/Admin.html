@@ -1,0 +1,213 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+    <title>Coog Music - Home</title>
+    <link rel="stylesheet" type="text/css" href="/css/admin.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/navbar.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/playbutton.css"/>
+    
+</head>
+
+<body>
+    <header>
+        <div class="main">
+            <ul>
+                <!-- <li><a  href="/"> Home</a> </a></li>
+                <li><a  href="/search.html"> Search </a> </a></li>
+                <li><a  href="upload_song"> Upload a Song </a> </a></li>
+                <li><a  href="reports"> Generate a Report </a> </a></li>
+                <li><a  href="createplay.html"> Create Playlists  </a> </a></li>
+                <li><a  href="/top5.html"> Top 5 Songs  </a> </a></li>
+
+                <li class="dropdown">
+                    <a href="myaccount.html"> My Account &#9660;</a>
+                    <ul class="dropdown-content">
+                        <li><a href="myaccount.html">Account Settings</a></li> -->
+                        <li><a href="/logout">Logout</a></li>
+                    <!-- </ul> -->
+                <!-- </li> -->
+                
+            </ul>
+        </div>
+
+        <div style="width:200px;height: 50px;">
+            <p style="font-size: 16px;"> Logged In as: Admin</p>
+        </div>
+        
+       
+       
+       
+       <form method="POST">
+        <input name="selectedType" id="selectedType" value="" hidden>
+
+            <div id="playBoxHome">
+
+                <input name="songID" id="songID"value=""hidden>
+                <input name="songName" id="songName" value=""hidden>
+
+                <div id="playBoxHome1">
+                    <p id="titleLabel">Songs</p>
+                    
+                    <div class = "buttonlist" >
+                        <button onclick="document.getElementById('selectedType').value=id" type="submit" style="display:none" id="songRemove">remove element</button>
+
+                        <div class="btn-group">
+                            {{range $element := .MySongChild}}
+                            <button type="button" onclick="songAction('{{$element.SongID}}','{{$element.Song}}')">Song ID: {{$element.SongID}} <br /> <br /> Song Title: {{$element.Song}}</button>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+
+                <input name="userID" id="userID"value=""hidden>
+                <input name="username" id="username"value=""hidden>
+
+                <div id="playBoxHome1">
+                    <p id="titleLabel">Users</p>
+                    <div class = "buttonlist" >
+
+                        <button onclick="document.getElementById('selectedType').value=id" type="submit" style="display:none" id="userRemove">remove element</button>
+
+                        <div class="btn-group">
+                            {{range $element := .MyUserReports}}
+                                <button type="button" onclick="userAction('{{$element.Userid}}','{{$element.Username}}')">User ID: {{$element.Userid}} <br /> <br /> Username: {{$element.Username}}</button>
+
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+
+
+                <input name="playlistID" id="playlistID"value="" hidden>
+                <input name="playlistName" id="playlistName"value=""hidden>
+
+
+                <div id="playBoxHome1">
+                    <p id="titleLabel">Playlists</p>
+                    <div class = "buttonlist" >
+                        <button onclick="document.getElementById('selectedType').value=id" type="submit" style="display:none" id="playlistRemove">remove element</button>
+                    <div class="btn-group">
+                        {{range $element := .MyPlaylistChilds}}
+                            <button type="button" onclick="playlistAction('{{$element.PlaylistID}}','{{$element.Playlistname}}')">Playlist ID: {{$element.PlaylistID}} <br /> <br /> Username: {{$element.Username}} <br /> <br /> Playlist Name: {{$element.Playlistname}}</button>
+
+                        {{end}}
+                    </div>
+                    </div>
+                </div>
+                
+            </div>
+            <br>
+            <br>
+            <p id="message">{{.Message}}</p>
+        </form>
+            
+        
+
+
+        <!-- <div class="side-text">
+          <h1>Coogs Music</h1>
+        </div> -->
+
+      
+
+   
+    
+    </header>
+
+    <script>
+    
+        function playlistAction(playlistid, playlistname)
+        {
+            document.getElementById("playlistID").value = playlistid;
+            document.getElementById("playlistName").value = playlistname;
+            document.getElementById("playlistRemove").style.display = "block";
+            document.getElementById("playlistRemove").innerHTML = "Remove "+playlistname+"?";
+        }
+
+        function userAction(userID, username)
+        {
+            document.getElementById("userID").value = userID;
+            document.getElementById("username").value = username;
+            document.getElementById("userRemove").style.display = "block";
+            document.getElementById("userRemove").innerHTML = "Remove "+ username +"?";
+
+
+        }
+        function songAction(songID, songName)
+        {
+            document.getElementById("songID").value = songID;
+            document.getElementById("songName").value = songName;
+            document.getElementById("songRemove").style.display = "block";
+            document.getElementById("songRemove").innerHTML = "Remove "+ songName +"?";
+
+        }
+
+         function addAudioPath(totalName) {
+            const totalNameSplit = totalName.split(",")
+            document.getElementById("source").src = totalNameSplit[0]
+            document.getElementById("songtitle").innerHTML = totalNameSplit[1]
+            console.log("this is my source "+document.getElementById("source").src)
+            var audio = document.getElementById("myAudio")
+            audio.load()
+        }
+        var prevHold = ""
+        function listSongs(lists) {
+            // if(istrue === true)
+            // {   
+              if(prevHold == "")
+              {
+                console.log("im here on prevhold")
+                prevHold = lists
+              } else if(prevHold != lists)
+              {
+                var selectBox = document.getElementById("select-box");
+                const mylist = prevHold.split("]")
+                
+                const mysonglist = mylist[1].split(",")
+                const mysongpathlist = mylist[2].split(",")
+                for(var x = 0;x < mysonglist.length-1;x++ )
+                {
+                    var myoption = document.getElementById("hello")
+                    selectBox.removeChild(myoption)
+                }
+              }
+                prevHold = lists
+                document.getElementById("select-box").style.display = "block";
+                document.getElementById("addButton").style.display = "block";
+                document.getElementById("removePlaylistButton").style.display = "block";
+                console.log("im on list songs");
+               
+                var selectBox = document.getElementById("select-box");
+                const mylist = lists.split("]")
+                const mysonglist = mylist[1].split(",")
+                const mysongpathlist = mylist[2].split(",")
+                console.log(mysongpathlist)
+                //appending values of songs per playlist
+                for(var x = 0;x < mysonglist.length-1;x++ )
+                {
+                    var myoption = document.createElement('option')
+                    myoption.id = "hello"
+                    myoption.innerHTML = mysonglist[x]
+                    myoption.value = mysongpathlist[x]+","+mysonglist[x]
+                    selectBox.appendChild(myoption)
+                }
+             
+               
+
+                
+           
+        }
+       
+        function playPause() {
+            var audio = document.getElementById("myAudio");
+
+            if (audio.paused) {
+                console.log("play")
+                audio.play();
+            } else {
+                audio.pause();
+            }
+    } 
+    </script>
+</body>
+</html>

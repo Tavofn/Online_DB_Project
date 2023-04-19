@@ -17,7 +17,8 @@
                 <li><a  href="upload_song"> Upload a Song </a> </a></li>
                 <li><a  href="reports"> Generate a Report </a> </a></li>
                 <li><a  href="createplay.html"> Create Playlists  </a> </a></li>
-        
+                <li><a  href="/top5.html"> Top 5 Songs  </a> </a></li>
+
                 <li class="dropdown">
                     <a href="myaccount.html"> My Account &#9660;</a>
                     <ul class="dropdown-content">
@@ -42,7 +43,7 @@
                     <p style="color:white">My Playlists</p>
                     <select id="" name = "test" size=10 onchange="console.log('here onclick');document.getElementById('playlistVals').value = value;listSongs(value);">
                         {{range $element := .Plchild}} 
-                        <option value = '{{$element.PlaylistID}}]{{$element.Song}}]{{$element.SongPath}}]{{$element.Listens}}'> {{$element.Playlistname}} </option>
+                        <option value = '{{$element.PlaylistID}}]{{$element.Song}}]{{$element.SongPath}}'> {{$element.Playlistname}} </option>
                         <br>    
                         
                         {{end}}
@@ -55,13 +56,6 @@
             </div>
        
 
-        <div id="playBoxRight">
-            <p style="color:white"> Top 5 Songs</p>
-            <br>
-            {{range $element := .Top5}}
-                <p style="font-size: 20px;">{{$element.Song}}   {{$element.Listens}}</p>
-            {{end}}
-        </div>
 
         <div class="side-text">
           <h1>Coogs Music</h1>
@@ -72,7 +66,6 @@
    
           <div id = "playBox">
             <p style="margin-right: 10px;" id = "songtitle"></p>
-            <p style="margin-right: 10px;" id = "listens"></p>
             <audio id="myAudio" controls>
                 <source id="source" src="" type="audio/mp3">
               </audio> 
@@ -87,7 +80,6 @@
             const totalNameSplit = totalName.split(",")
             document.getElementById("source").src = totalNameSplit[0]
             document.getElementById("songtitle").innerHTML = totalNameSplit[1]
-            document.getElementById("listens").innerHTML = totalNameSplit[2]
             console.log("this is my source "+document.getElementById("source").src)
             var audio = document.getElementById("myAudio")
             audio.load()
@@ -130,7 +122,7 @@
                     var myoption = document.createElement('option')
                     myoption.id = "hello"
                     myoption.innerHTML = mysonglist[x]
-                    myoption.value = mysongpathlist[x]+","+mysonglist[x]+","+mysonglist[x][3]
+                    myoption.value = mysongpathlist[x]+","+mysonglist[x]
                     selectBox.appendChild(myoption)
                 }
              

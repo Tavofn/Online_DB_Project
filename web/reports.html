@@ -15,6 +15,8 @@
             <li><a  href="upload_song"> Upload a Song </a> </a></li>
             <li><a  href="reports"> Generate a Report </a> </a></li>
             <li><a  href="createplay.html"> Create Playlists  </a> </a></li>
+            <li><a  href="/top5.html"> Top 5 Songs  </a> </a></li>
+
             <li class="dropdown">
                 <a href="myaccount.html"> My Account &#9660;</a>
                 <ul class="dropdown-content">
@@ -92,6 +94,7 @@
           console.log("shfskjdhfskjlhflkjsahfkjshfkjlasfljkhsadflkjahdf")
         document.getElementById("reportModeSelect").addEventListener("change", reportChange, false)
         document.getElementById("checkboxvalue").value = "Notchecked"
+        
         function reportChange(myvalue) { //drop down selection that selects the report type
             
             if(myvalue == 'uploadbydate')

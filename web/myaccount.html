@@ -5,10 +5,36 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="/css/myaccount.css">
-    <title>My Account</title>
+	<link rel="stylesheet" type="text/css" href="/css/navbar.css"/>
+
+	<title>My Account</title>
     <!-- <script src="script.js"></script> -->
 </head>
 <body style = "background-color: black;">
+	<header>
+        <div class="main">
+            <ul>
+                <li><a  href="/"> Home</a> </a></li>
+                <li><a  href="/search.html"> Search </a> </a></li>
+                <li><a  href="upload_song"> Upload a Song </a> </a></li>
+                <li><a  href="reports"> Generate a Report </a> </a></li>
+                <li><a  href="createplay.html"> Create Playlists  </a> </a></li>
+                <li><a  href="/top5.html"> Top 5 Songs  </a> </a></li>
+
+                <li class="dropdown">
+                    <a href="myaccount.html"> My Account &#9660;</a>
+                    <ul class="dropdown-content">
+                        <li><a href="myaccount.html">Account Settings</a></li>
+                        <li><a href="/logout">Logout</a></li>
+                    </ul>
+                </li>
+                
+            </ul>
+        </div>
+	</header>
+	<br>
+	<br>
+	<br>
     <div class="container">
 		<div class="sidebar">
 			<h2>My Account</h2>
@@ -21,14 +47,11 @@
 				<div class="menu-item" id="edit" >Edit Profile</div>
 			</a>
 
-			<a href="/changepass.html">
-				<div class="menu-item" id="changepass">Change Password</div>
-			</a>
-
 			<a href="/logout">
 			<div class="menu-item" id="lout">Logout</div>
 		</a>
 		</div>
+	
 		<div class="main-content" id="main-content">
 			<!-- Your main content goes here -->
 			<div class="con">
@@ -65,11 +88,10 @@
 				  </tr>-->
 				</table>
 			  </div>
-		
+			</div>
+		</div>
 		</body>
             
-		</div>
-	</div>
 
 	 <script>
 		const overviewBtn = document.getElementById("overview");
