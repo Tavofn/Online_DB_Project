@@ -424,7 +424,7 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 
 	} else if searchType == "Genre" {
 		fmt.Println("i'm here now on genre name")
-		songs, err2 := mydb.mydb.Query("SELECT title, mp3_file FROM song WHERE genre=?", search)
+		songs, err2 := mydb.mydb.Query("SELECT songID, title, mp3_file FROM song WHERE genre=?", search)
 
 		if err2 != nil {
 			fmt.Println(songs)
@@ -437,9 +437,10 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 
 		var title string
 		var mp3file string
+		var songIDval int
 		for songs.Next() {
-			songs.Scan(&title, &mp3file)
-			temp := Songschild{Genre: search, Song: title, SongPath: mp3file}
+			songs.Scan(&songIDval, &title, &mp3file)
+			temp := Songschild{SongID: songIDval, Genre: search, Song: title, SongPath: mp3file}
 			t.MySongChild = append(t.MySongChild, temp)
 		}
 
