@@ -859,6 +859,10 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 			tpl.ExecuteTemplate(w, "home_nologin.html", nil)
 			return
 		}
+		if reflect.ValueOf(myuserID).Interface().(int) == 14 {
+			http.Redirect(w, r, "/login.html", 302)
+			return
+		}
 
 		myquery, err2 := mydb.mydb.Query("SELECT Playlist_ID,playlist_name FROM PLAYLIST WHERE UserID=?", myuserID)
 
@@ -1642,7 +1646,7 @@ func main() {
 	http.HandleFunc("/signup", mydb.addAccountSignUp)
 
 	http.HandleFunc("/logout", mydb.logout)
-	http.HandleFunc("/", mydb.Auth(mydb.home))
+	http.HandleFunc("/", mydb.home)
 	http.HandleFunc("/upload_song", mydb.Auth(mydb.uploadsong))
 	http.HandleFunc("/search.html", mydb.Auth(mydb.searchList))
 	http.HandleFunc("/search_nologin.html", mydb.searchList)
