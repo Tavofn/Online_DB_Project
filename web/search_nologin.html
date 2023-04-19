@@ -72,8 +72,11 @@
 
       <div id = "playBox">
         <p id = "songtitle">{{.SelectedSong}}</p>
+        <audio id="myAudio" controls>
+          <source id="source" src="{{.SelectedSongPath}}" type="audio/mp3">
+        </audio>  
         <!-- <button class="playBtn" id = "playpause" onclick="playPause()">Play/Pause</button> -->
-        <a id = "playpause" onclick="playPause()" class="playBtn"></a>
+        <!-- <a id = "playpause" onclick="playPause()" class="playBtn"></a> -->
       </div>
     </div>
 <script>

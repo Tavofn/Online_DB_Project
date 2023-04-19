@@ -78,8 +78,9 @@ type dbstructIsPlaylistSearch struct {
 	mydb dbstruct
 }
 type playlist struct {
-	Plchild []playlistChild
-	Top5    []Songschild
+	Plchild  []playlistChild
+	Top5     []Songschild
+	Username string
 }
 type playlistChild struct {
 	Playlistname string
@@ -87,6 +88,7 @@ type playlistChild struct {
 	songID       string
 	Song         string
 	SongPath     string
+	Listens      int
 }
 type userListCHILD struct {
 	Username string
@@ -353,7 +355,7 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 	//THIS WILL SHOW YOU THE SEARCH RESULTS FROM INPUT
 	fmt.Println("here")
 	searchType := r.FormValue("selectedOptionNAME")
-	search := r.FormValue("mysearch")
+	search := strings.ToLower(r.FormValue("mysearch"))
 	fmt.Println(string(searchType))
 	fmt.Println("before")
 	if strings.Contains(search, ":") {
@@ -385,7 +387,7 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 
 			songDetails.Scan(&songTitle, &songPathstr)
 
-			if search == songTitle[strings.Index(songTitle, "-")+1:] {
+			if search == strings.ToLower(songTitle[strings.Index(songTitle, "-")+1:]) {
 				fmt.Println("FOUND lsk;dhflkjsdhflkjsd")
 				temp := Songschild{SongID: songID, Song: songTitle, SongPath: songPathstr}
 				t.MySongChild = append(t.MySongChild, temp)
@@ -460,7 +462,7 @@ func (mydb *dbstruct) searchList(w http.ResponseWriter, r *http.Request) {
 			}
 			for songDetails.Next() {
 				songDetails.Scan(&songID, &songTitle, &songPathstr)
-				if search == songTitle[0:strings.Index(songTitle, "-")] {
+				if search == strings.ToLower(songTitle[0:strings.Index(songTitle, "-")]) {
 					temp := Songschild{SongID: songID, Song: songTitle, SongPath: songPathstr}
 					t.MySongChild = append(t.MySongChild, temp)
 					fmt.Println(songPathstr)
@@ -526,7 +528,7 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	r.ParseForm()
-
+	//datalist for search
 	songs, err2 := mydb.mydb.Query("SELECT title FROM song")
 	if err2 != nil {
 		fmt.Println(songs)
@@ -563,16 +565,18 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 	}
 
 	fmt.Println("here")
+
+	//datalist for search results
 	searchType := r.FormValue("selectedOptionNAME")
-	search := r.FormValue("mysearch")
+	search := strings.ToLower(r.FormValue("mysearch"))
 	if strings.Contains(search, ":") {
 		search = search[0:strings.Index(search, ":")]
 	}
 	fmt.Println(string(searchType))
 	fmt.Println("before")
 	fmt.Println("songID BEFORE conditional ", r.FormValue("songID"))
-	if r.FormValue("songID") == "" {
 
+	if r.FormValue("songID") == "" {
 		if searchType == "Song Name" {
 			fmt.Println("i'm here now on song name")
 			songsID, err2 := mydb.mydb.Query("SELECT songID FROM song")
@@ -600,7 +604,7 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 				songDetails.Scan(&songTitle, &songPathstr)
 				fmt.Println("song title from query ", songTitle)
 				fmt.Println("song search from input ", search)
-				if search == songTitle[strings.Index(songTitle, "-")+1:] {
+				if search == strings.ToLower(songTitle[strings.Index(songTitle, "-")+1:]) {
 					temp := Songschild{SongID: songID, Song: songTitle, SongPath: songPathstr}
 					t.MySongChild = append(t.MySongChild, temp)
 					fmt.Println(songPathstr)
@@ -661,7 +665,7 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 				}
 				for songDetails.Next() {
 					songDetails.Scan(&songID, &songTitle, &songPathstr)
-					if search == songTitle[0:strings.Index(songTitle, "-")] {
+					if search == strings.ToLower(songTitle[0:strings.Index(songTitle, "-")]) {
 						temp := Songschild{SongID: songID, Song: songTitle, SongPath: songPathstr}
 						t.MySongChild = append(t.MySongChild, temp)
 						fmt.Println(songPathstr)
@@ -683,11 +687,12 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 		var path string
 		myquery.Scan(&title, &path)
 		fmt.Println("query for songID after click on results ", title, path)
-		insert, err := mydb.mydb.Prepare("INSERT INTO `playlist_song` (`playlistID`, `song`, `songpath`) VALUES (?, ?, ?);")
+		insert, err := mydb.mydb.Prepare("INSERT INTO `playlist_song` (`playlistID`, `song`, `songpath`, `songID_pl`) VALUES (?, ?, ?,?);")
 		defer insert.Close()
+		fmt.Println("THIS IS PLAYLIST VALUE ON PLAYLISTSONGSEARCH SELECTION: ", plIDS.PlaylistID)
 		plvalue, err := strconv.Atoi(plIDS.PlaylistID)
 		fmt.Println("my playlist ID ahahhahah ", plvalue)
-		res, err := insert.Exec(plvalue, title, path)
+		res, err := insert.Exec(plvalue, title, path, songidconv)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -850,23 +855,28 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 		for myquery.Next() {
 			//get playlist name and id
 			myquery.Scan(&playlistid, &playlistname)
-			myquery, err2 := mydb.mydb.Query("SELECT song,songpath FROM PLAYLIST_SONG WHERE PlaylistID=?", playlistid)
+			myquery, err2 := mydb.mydb.Query("SELECT song,songpath,songID_pl FROM PLAYLIST_SONG WHERE PlaylistID=?", playlistid)
 			if err2 != nil {
 				fmt.Println("test")
 			}
 			defer myquery.Close()
 			var songname string
 			var songpath string
+			var songID int
+			var listensVal int
 			songnameList := ""
 			songpathList := ""
 			for myquery.Next() {
 				//add songs under playlist name and id
-				myquery.Scan(&songname, &songpath)
+				myquery.Scan(&songname, &songpath, &songID)
+				listens := mydb.mydb.QueryRow("SELECT listens from SONG WHERE songID=?", songID)
+				listens.Scan(&listensVal)
 				songnameList = songnameList + songname + ","
 				songpathList = songpathList + songpath + ","
 
 			}
-			temp := playlistChild{Playlistname: playlistname, PlaylistID: playlistid, Song: songnameList, SongPath: songpathList}
+
+			temp := playlistChild{Listens: listensVal, Playlistname: playlistname, PlaylistID: playlistid, Song: songnameList, SongPath: songpathList}
 			t.Plchild = append(t.Plchild, temp)
 		}
 		top5query, err := mydb.mydb.Query("SELECT song_id, listensTOP FROM TOP_5_SONGS ORDER BY listensTOP DESC")
@@ -890,6 +900,10 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println(err)
 		}
+		username := mydb.mydb.QueryRow("SELECT username FROM user WHERE UserID=?", myuserID)
+		var usernameVal string
+		username.Scan(&usernameVal)
+		t.Username = usernameVal
 		tpl.ExecuteTemplate(w, "home.html", t)
 	}
 	isPlaylistDelete := r.FormValue("isPlaylistDelete")
@@ -897,6 +911,7 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 	playlistIDVar := r.FormValue("playlistVals")
 	res := strings.Split(playlistIDVar, "]")
 	plIDS.PlaylistID = res[0]
+	fmt.Println(plIDS.PlaylistID)
 	if isPlaylistDelete == "true" {
 		value, err := strconv.Atoi(plIDS.PlaylistID)
 
