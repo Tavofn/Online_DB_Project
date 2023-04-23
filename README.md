@@ -5,16 +5,16 @@ folders that contain our front-end and back-end code.
 
 The folders we are submitting include the following:
 <pre>
-● Server folder \
+● Server folder 
    ○ main.go - Contains all of our backend code written in Go.
-\
-● SQL folder \
+
+● SQL folder 
   ○ Dump - Folder which contains our populate SQL dump file
-   ■ [team3_dump.sql](https://github.com/Tavofn/Online_DB_Project/blob/main/sql/dump/team3_dump.sql) \
-   ○ Mini_world.sql \
-   ○ Testsongs.csv - folder of song data we used for testing purposes ● Web folder \
-\
-● Web folder \
+   ■ [team3_dump.sql](https://github.com/Tavofn/Online_DB_Project/blob/main/sql/dump/team3_dump.sql) 
+   ○ Mini_world.sql 
+   ○ Testsongs.csv - folder of song data we used for testing purposes ● Web folder 
+
+● Web folder 
    ○ This folder contains all of our frontend code and all the images we used for our website
 </pre>
 Our project does not need any sort of installation requirement. All you will need is the
