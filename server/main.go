@@ -1666,11 +1666,11 @@ func main() {
 	http.HandleFunc("/sortByDate.html", mydb.Auth(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/sortByDate.html")
 	}))
-	http.HandleFunc("/reports", mydb.Auth(mydb.reports))
+	http.HandleFunc("/reports", AuthAdmin(mydb.reports))
 	http.HandleFunc("/top5.html", mydb.Auth(mydb.top5))
-	http.HandleFunc("/reportsResults.html", mydb.Auth(mydb.reportsResults))
-	http.HandleFunc("/reportsResultsUserCreate.html", mydb.Auth(mydb.reportsResultsUserCreate))
-	http.HandleFunc("/reportsResultsPlaylistCreate.html", mydb.Auth(mydb.reportsResultsPlaylistCreate))
+	http.HandleFunc("/reportsResults.html", AuthAdmin(mydb.reportsResults))
+	http.HandleFunc("/reportsResultsUserCreate.html", AuthAdmin(mydb.reportsResultsUserCreate))
+	http.HandleFunc("/reportsResultsPlaylistCreate.html", AuthAdmin(mydb.reportsResultsPlaylistCreate))
 
 	http.HandleFunc("/changepass.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/changepass.html")
