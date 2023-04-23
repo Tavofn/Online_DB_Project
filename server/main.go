@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -132,9 +133,10 @@ TODO
 */
 
 func myDB() *sql.DB {
-	//pass, err := ioutil.ReadFile("pass.txt")
+	pass, err := ioutil.ReadFile("pass.txt")
+
 	//user, err := ioutil.ReadFile("username.txt")
-	db, err := sql.Open("mysql", "hpalma:5802**@tcp(team3-music-database-2023.mysql.database.azure.com:3306)/3380-project?tls=skip-verify")
+	db, err := sql.Open("mysql", "hpalma:"+string(pass)+"@tcp(team3-music-database-2023.mysql.database.azure.com:3306)/3380-project?tls=skip-verify")
 	if err != nil {
 		panic(err)
 	}
