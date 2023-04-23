@@ -73,6 +73,7 @@ type dbstruct struct {
 	user       User
 	UserReport []UserReport
 	Mysongs    Songs
+	playlistID string
 }
 type playlistIDStru struct {
 	PlaylistID string
@@ -707,8 +708,8 @@ func (mydb *dbstruct) searchListPlaylist(w http.ResponseWriter, r *http.Request)
 		fmt.Println("query for songID after click on results ", title, path)
 		insert, err := mydb.mydb.Prepare("INSERT INTO `playlist_song` (`playlistID`, `song`, `songpath`, `songID_pl`) VALUES (?, ?, ?,?);")
 		defer insert.Close()
-		fmt.Println("THIS IS PLAYLIST VALUE ON PLAYLISTSONGSEARCH SELECTION: ", plIDS.PlaylistID)
-		plvalue, err := strconv.Atoi(plIDS.PlaylistID)
+		fmt.Println("THIS IS PLAYLIST VALUE ON PLAYLISTSONGSEARCH SELECTION: ", mydb.playlistID)
+		plvalue, err := strconv.Atoi(mydb.playlistID)
 		fmt.Println("my playlist ID ahahhahah ", plvalue)
 		res, err := insert.Exec(plvalue, title, path, songidconv)
 		if err != nil {
@@ -928,9 +929,9 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 	playlistIDVar := r.FormValue("playlistVals")
 	fmt.Println(playlistIDVar)
 	res := strings.Split(playlistIDVar, "]")
-	plIDS.PlaylistID = res[0]
+	mydb.playlistID = res[0]
 	if isPlaylistDelete == "true" {
-		value, err := strconv.Atoi(plIDS.PlaylistID)
+		value, err := strconv.Atoi(mydb.playlistID)
 
 		deleteSongsplaylist, err := mydb.mydb.Prepare("DELETE FROM playlist_song WHERE playlistID=?")
 		deleteSongsEXE, err := deleteSongsplaylist.Exec(value)
