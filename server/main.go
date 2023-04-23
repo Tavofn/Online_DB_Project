@@ -47,6 +47,7 @@ type UserReport struct {
 	Playlist_name string
 	Playlist_id   string
 	Uploadedby    string
+	Songcounter   string
 }
 type Songschild struct {
 	SongID       int
@@ -1129,17 +1130,25 @@ func (mydb *dbstruct) reports(w http.ResponseWriter, r *http.Request) {
 		var t []UserReport
 		for myquery.Next() {
 			myquery.Scan(&userID, &username, &date, &fullname, &email)
+			myquerySongs, err := mydb.mydb.Query("SELECT title FROM song WHERE UserID=?", userID)
+			fmt.Println("this is the sought after userid: ", userID)
+			defer myquerySongs.Close()
+			counter := 0
+			for myquerySongs.Next() {
+				// myquerySongs.Scan(&titlestring)
+				counter++
+			}
 			timeOG, err := time.Parse("2006-01-02 15:04:05", date)
 			if err != nil {
 				fmt.Println(err)
 			}
 			if dateCheckbox == "Notchecked" {
 				if timeOG.After(timefrom) && timeOG.Before(timeto) {
-					t = append(t, UserReport{Email: email, Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
+					t = append(t, UserReport{Songcounter: strconv.Itoa(counter), Email: email, Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
 					// mydb.UserReport = append(mydb.UserReport, UserReport{Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
 				}
 			} else {
-				t = append(t, UserReport{Email: email, Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
+				t = append(t, UserReport{Songcounter: strconv.Itoa(counter), Email: email, Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
 				// mydb.UserReport = append(mydb.UserReport, UserReport{Userid: userID, Username: username, Date_regist: date, Name_user: fullname})
 			}
 		}

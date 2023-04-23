@@ -51,7 +51,7 @@ td, th {
     <th>Username</th>
     <th>Email</th>
     <th>Full Name</th>
-
+    <th>Num of songs uploaded</th>
     {{range $element := .}}
     <tr>
         <th>{{$element.Date_regist}}</th>
@@ -59,6 +59,7 @@ td, th {
         <th>{{$element.Username}}</th>
         <th>{{$element.Email}}</th>
         <th>{{$element.Name_user}}</th>
+        <th>{{$element.Songcounter}}</th>
     </tr>
     {{end}}
 
