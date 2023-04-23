@@ -926,6 +926,7 @@ func (mydb *dbstruct) home(w http.ResponseWriter, r *http.Request) {
 	isPlaylistDelete := r.FormValue("isPlaylistDelete")
 	// isSongDelete := r.FormValue("isSongDelete")
 	playlistIDVar := r.FormValue("playlistVals")
+	fmt.Println(playlistIDVar)
 	res := strings.Split(playlistIDVar, "]")
 	plIDS.PlaylistID = res[0]
 	if isPlaylistDelete == "true" {
