@@ -4,7 +4,7 @@ So the files we are submitting are the SQL dump file named “[team3_dump.sql](h
 folders that contain our front-end and back-end code.
 
 The folders we are submitting include the following:
-
+<pre>
 ● Server folder \
    ○ main.go - Contains all of our backend code written in Go.
 \
@@ -16,7 +16,7 @@ The folders we are submitting include the following:
 \
 ● Web folder \
    ○ This folder contains all of our frontend code and all the images we used for our website
-
+</pre>
 Our project does not need any sort of installation requirement. All you will need is the
 link to our website(https://team3.coogsmusic.com/) and some account login information,
 which will be provided in another document in our submitted folder. Although, if you
