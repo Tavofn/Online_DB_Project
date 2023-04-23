@@ -10,7 +10,7 @@ The folders we are submitting include the following:
 
 ● SQL folder 
   ○ Dump - Folder which contains our populate SQL dump file
-   ■ [team3_dump.sql](https://github.com/Tavofn/Online_DB_Project/blob/main/sql/dump/team3_dump.sql) 
+   ■ team3_dump.sql
    ○ Mini_world.sql 
    ○ Testsongs.csv - folder of song data we used for testing purposes ● Web folder 
 
