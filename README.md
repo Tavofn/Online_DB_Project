@@ -17,17 +17,19 @@ The folders we are submitting include the following:
 ● Web folder 
    ○ This folder contains all of our frontend code and all the images we used for our website
 </pre>
-Our project does not need any sort of installation requirement. All you will need is the
+Our project requires the installation of golang. If you prefer the see the hosted website, all you will need is the
 link to our website(https://team3.coogsmusic.com/) and some account login information,
 which will be provided in another document in our submitted folder. Although, if you
 want to run our code locally there are some steps that are required:
 
-1\. After you have all of our code in your developer environment, open up a terminal
+1\. Install https://go.dev/doc/install
+
+2\. After you have all of our code in your developer environment, open up a terminal
  and enter this command “Go run ./server/main.go”
 
-2\. After that wait a couple of seconds and you will see a message in the terminal
+3\. After that wait a couple of seconds and you will see a message in the terminal
  that says “Successful Connection to Database!”.
 
-3\. Then, open up your browser and type “<http://localhost:8086>”
+4\. Then, open up your browser and type “<http://localhost:8086>”
 
-4\. From there you can navigate our site locally
+5\. From there you can navigate our site locally
