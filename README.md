@@ -12,7 +12,7 @@ The folders we are submitting include the following:
   ○ Dump - Folder which contains our populate SQL dump file
    ■ team3_dump.sql
    ○ Mini_world.sql 
-   ○ Testsongs.csv - folder of song data we used for testing purposes ● Web folder 
+   ○ Testsongs.csv - folder of song data we used for testing purposes
 
 ● Web folder 
    ○ This folder contains all of our frontend code and all the images we used for our website
